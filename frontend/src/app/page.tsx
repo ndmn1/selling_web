@@ -1,4 +1,4 @@
-import ImageCarousel from "@/components/ImageCarousel/ImageCarousel";
+import ImageCarousel from "@/components/ImageCarousel";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -8,7 +8,7 @@ export default function Home() {
       <ImageCarousel />
 
       <div>
-        <h1 className="text-4xl font-semibold text-center my-16">
+        <h1 className="text-4xl font-semibold text-center my-8">
           Welcome to our store
         </h1>
         <p className="text-lg text-center">
@@ -16,24 +16,26 @@ export default function Home() {
           find what you need.
         </p>
       </div>
-      <div className="grid grid-cols-2 my-16 w-[96%] mx-auto h-96 overflow-hidden">
-        <div className="relative w-full h-full hover:scale-105 transition-transform duration-500">
-          <Link href="/sale">
+      <div className="relative my-16 w-[96%] mx-auto overflow-hidden pb-[40%]">
+        <div className="absolute inset-0 grid grid-cols-2">
+          <div className="relative w-full h-full hover:scale-105 transition-transform duration-500">
+            <Link href="/sale">
+              <Image
+                src="/sale.jpeg"
+                alt="Sale promotion"
+                fill
+                className="object-fill"
+              />
+            </Link>
+          </div>
+          <div className="relative w-full h-full hover:scale-105 transition-transform duration-500">
             <Image
-              src="/sale.jpeg"
-              alt="Sale promotion"
+              src="/trending.jpg"
+              alt="Trending items"
               fill
               className="object-fill"
             />
-          </Link>
-        </div>
-        <div className="relative w-full h-full hover:scale-105 transition-transform duration-500">
-          <Image
-            src="/trending.jpg"
-            alt="Trending items"
-            fill
-            className="object-fill"
-          />
+          </div>
         </div>
       </div>
     </div>

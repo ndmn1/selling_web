@@ -12,6 +12,7 @@ app.use(bodyParser.json()); // application/json
 
 app.use('/shop',shopRoutes);
 app.use('/admin', adminRoutes);
+
 mongoose.connect('mongodb+srv://ndminhnhat1234:IPBSZslrk9dVhqjs@cluster0.cpgs4.mongodb.net/shop?retryWrites=true&w=majority&appName=Cluster0')
   .then((res) => {
     console.log('Connected to MongoDB');
@@ -20,3 +21,4 @@ mongoose.connect('mongodb+srv://ndminhnhat1234:IPBSZslrk9dVhqjs@cluster0.cpgs4.m
   .catch(err => {
     console.log(err);
   });
+

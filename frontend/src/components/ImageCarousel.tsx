@@ -46,8 +46,8 @@ export default function ImageCarousel() {
   }, [goToNext, isPlaying]);
 
   return (
-    <div className="relative w-[96vw] h-[80vh] mx-auto overflow-hidden">
-      <div className="relative w-full h-full flex">
+    <div className="relative w-[96vw] h-0 mx-auto overflow-hidden pb-[40%]">
+      <div className="absolute w-full h-full flex inset-0">
         {images.map((src, index) => (
           <div
             key={index}

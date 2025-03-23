@@ -4,10 +4,10 @@ import Image from "next/image";
 import { FaShoppingCart } from "react-icons/fa";
 import { MdOutlineAccountCircle } from "react-icons/md";
 import Link from "next/link";
-import NavLink from "../NavLink/NavLink";
-import Search from "../Search.tsx/Search";
+import NavLink from "./NavLink";
+import Search from "./Search";
 import { IoMdArrowBack } from "react-icons/io";
-import DropDownNavLink from "../DropDownNavLink/DropDownNavLink";
+import DropDownNavLink from "./DropDownNavLink";
 interface NavLinkProps {
   path: string;
   name: string;
