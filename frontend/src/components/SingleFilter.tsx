@@ -78,7 +78,7 @@ export function SingleFilter({
     // Update URL
     const params = new URLSearchParams(searchParams.toString());
     params.delete(searchParamName);
-
+    params.delete("page"); // Remove page query param when filtering
     // Get values for selected IDs and add them to URL
     newSelected.forEach((selectedId) => {
       const option = options.find((opt) => opt.id === selectedId);

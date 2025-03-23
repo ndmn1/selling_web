@@ -3,10 +3,11 @@ import Link from "next/link"
 import type { Product } from "@/types/product"
 import { FaEye } from "react-icons/fa";
 interface ProductGridProps {
-  products: Product[]
+  data: Promise<Product[]>
 }
 
-export default function ProductGrid({ products }: ProductGridProps) {
+export default async function ProductGrid({ data }: ProductGridProps) {
+  const products = (await data) as Product[];
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
       {products.map((product) => (

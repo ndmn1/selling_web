@@ -1,8 +1,15 @@
 'use client';
+import Link from "next/link";
 import React from "react";
 import { IoIosArrowDown } from "react-icons/io";
 
-function DropDownNavLink(props: any) {
+interface DropDownNavLinkProps {
+  mouseEnter: () => void;
+  mouseLeave: () => void;
+  dropdown: () => void;
+}
+
+function DropDownNavLink(props: DropDownNavLinkProps) {
   const handleMouseEnter = () => {
     props.mouseEnter();
   };
@@ -18,7 +25,7 @@ function DropDownNavLink(props: any) {
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      <a href="/sneaker">SNEAKER</a>
+      <Link href="/sneaker">SNEAKER</Link>
       <div>
         <button
           className="ml-1 flex items-center justify-center -rotate-90 lg:rotate-0 size-5 lg:size-4"

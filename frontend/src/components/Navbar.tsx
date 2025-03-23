@@ -112,9 +112,9 @@ const Navbar = () => {
             </button>
           </div>
           <div className="xl:ml-10">
-            <a href="/">
+            <Link href="/">
               <Image src="/logo.png" alt="logo" width={100} height={100} />
-            </a>
+            </Link>
           </div>
 
           <div

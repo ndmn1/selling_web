@@ -1,9 +1,15 @@
+import Link from "next/link";
 import React from "react";
 
-function NavLink(props : any) {
+interface NavLinkProps {
+  path: string;
+  name: string;
+}
+
+function NavLink(props: NavLinkProps) {
   return (
     <li className="hover:text-gray-300 hover:bg-neutral-900 lg:h-full flex items-center px-4 text-sm h-10">
-      <a href={props.path}>{props.name}</a>
+      <Link href={props.path}>{props.name}</Link>
     </li>
   );
 }

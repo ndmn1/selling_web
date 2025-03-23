@@ -69,7 +69,7 @@ export function RangleFilter({ title, options }: RangleFilterProps) {
     const params = new URLSearchParams(searchParams.toString());
     params.delete("from");
     params.delete("to");
-
+    params.delete("page"); // Remove page query param when filtering
     if (checked) {
       if (id === "arbitrary") {
         if(arbitraryValue.from ) {
