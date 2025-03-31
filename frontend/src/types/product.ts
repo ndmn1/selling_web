@@ -2,9 +2,25 @@ export interface Product {
   id: string
   name: string
   brand: string
-  image: string
-  originalPrice: number
+  mainImage: string
+  price: number
   salePrice: number
-  discountPercentage: number
+  discount: number
 }
 
+export interface DetailedProduct {
+  id: string
+  name: string
+  brand: string
+  mainImage: string
+  images: string[]
+  price: number
+  salePrice: number
+  discount: number
+  description: string
+  sizes: {
+    size: string
+    stock: number
+  }[]
+
+}

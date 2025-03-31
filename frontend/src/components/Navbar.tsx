@@ -8,6 +8,7 @@ import NavLink from "./NavLink";
 import Search from "./Search";
 import { IoMdArrowBack } from "react-icons/io";
 import DropDownNavLink from "./DropDownNavLink";
+import { useCart } from "@/context/CartCountProvider";
 interface NavLinkProps {
   path: string;
   name: string;
@@ -42,7 +43,7 @@ const Navbar = () => {
   const navRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const lastScrollY = useRef(0);
-
+  const { cartCount } = useCart();
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
@@ -140,9 +141,13 @@ const Navbar = () => {
             <button>
               <MdOutlineAccountCircle fontSize="1.7em" color="white" />
             </button>
-            <button>
-              <FaShoppingCart fontSize="1.7em" color="white" />
-            </button>
+            <div className="flex items-center relative">
+              <button>
+                <FaShoppingCart fontSize="1.7em" color="white" />
+              </button>
+              <div className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
+                {cartCount} </div>
+            </div>
           </div>
         </nav>
         {/* Mobile Search Bar (conditionally rendered) */}
