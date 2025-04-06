@@ -17,7 +17,7 @@ import { useCart } from "@/context/CartCountProvider";
 function ProductInfo({ data }: { data: Promise<DetailedProduct> }) {
   const [product, setProduct] = useState<DetailedProduct>();
   const [selectedImage, setSelectedImage] = useState(0);
-  const [selectedSize, setSelectedSize] = useState("EU 42");
+  const [selectedSize, setSelectedSize] = useState("M");
   const [addedToBag, setAddedToBag] = useState(false);
   const { addToCart } = useCart();
   const router = useRouter();
@@ -31,7 +31,7 @@ function ProductInfo({ data }: { data: Promise<DetailedProduct> }) {
 
   const handleAddToBag = () => {
     setAddedToBag(true);
-    addToCart(product?.id as string);
+    addToCart(product?.id as string, selectedSize);
     router.refresh();
   };
 

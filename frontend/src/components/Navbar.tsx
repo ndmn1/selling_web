@@ -141,13 +141,13 @@ const Navbar = () => {
             <button>
               <MdOutlineAccountCircle fontSize="1.7em" color="white" />
             </button>
-            <div className="flex items-center relative">
-              <button>
+            <Link className="flex items-center relative" href="/cart">
+              <button >
                 <FaShoppingCart fontSize="1.7em" color="white" />
               </button>
               <div className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
                 {cartCount} </div>
-            </div>
+            </Link>
           </div>
         </nav>
         {/* Mobile Search Bar (conditionally rendered) */}

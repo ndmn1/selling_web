@@ -1,4 +1,4 @@
-import type { Product } from "@/types/product"
+import type { CartProduct, DetailedProduct, Product } from "@/types/product"
 
 export const products: Product[] = [
   {
@@ -157,3 +157,212 @@ export const products: Product[] = [
   },
 ]
 
+export const detailProducts : DetailedProduct[] = [
+  {
+    id: "1",
+    name: "i-Shirt Champion White",
+    brand: "Champion",
+    mainImage: "/placeholder.svg?height=300&width=300",
+    images: [
+      "/placeholder.svg?height=300&width=300",
+      "/placeholder.svg?height=300&width=300",
+      "/placeholder.svg?height=300&width=300",
+      "/placeholder.svg?height=300&width=300",
+    ],
+    price: 299000,
+    salePrice: 239000,
+    discount: 24,
+    description:
+      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam fringilla augue nec est tristique auctor. Donec non est at libero.",
+    sizes: [
+      {
+        size: "S",
+        stock: 5,
+      },
+      {
+        size: "M",
+        stock: 10,
+      },
+      {
+        size: "L",
+        stock: 0,
+      },
+    ],
+  },
+  {
+    id: "2",
+    name: "i-Shirt Champion Light White",
+    brand: "Champion",
+    mainImage: "/placeholder.svg?height=300&width=300",
+    images: [
+      "/placeholder.svg?height=300&width=300",
+      "/placeholder.svg?height=300&width=300",
+      "/placeholder.svg?height=300&width=300",
+      "/placeholder.svg?height=300&width=300",
+    ],
+    price: 299000,
+    salePrice: 198000,
+    discount: 32,
+    description:
+      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam fringilla augue nec est tristique auctor. Donec non est at libero.",
+    sizes: [
+      {
+        size: "S",
+        stock: 5,
+      },
+      {
+        size: "M",
+        stock: 10,
+      },
+      {
+        size: "L",
+        stock: 0,
+      },
+    ],
+  },
+  {
+    id: "3",
+    name: "i-Shirt Champion Blue",
+    brand: "Champion",
+    mainImage: "/placeholder.svg?height=300&width=300",
+    images: [
+      "/placeholder.svg?height=300&width=300",
+      "/placeholder.svg?height=300&width=300",
+      "/placeholder.svg?height=300&width=300",
+      "/placeholder.svg?height=300&width=300",
+    ],
+    price: 299000,
+    salePrice: 239000,
+    discount: 24,
+    description:
+      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam fringilla augue nec est tristique auctor. Donec non est at libero.",
+    sizes: [
+      {
+        size: "S",
+        stock: 5,
+      },
+      {
+        size: "M",
+        stock: 10,
+      },
+      {
+        size: "L",
+        stock: 0,
+      },
+    ],
+  },
+  {
+    id: "4",
+    name: "i-Shirt Champion Black",
+    brand: "Champion",
+    mainImage: "/placeholder.svg?height=300&width=300",
+    images: [
+      "/placeholder.svg?height=300&width=300",
+      "/placeholder.svg?height=300&width=300",
+      "/placeholder.svg?height=300&width=300",
+      "/placeholder.svg?height=300&width=300",
+    ],
+    price: 299000,
+    salePrice: 198000,
+    discount: 32,
+    description:
+      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam fringilla augue nec est tristique auctor. Donec non est at libero.",
+    sizes: [
+      {
+        size: "S",
+        stock: 5,
+      },
+      {
+        size: "M",
+        stock: 10,
+      },
+      {
+        size: "L",
+        stock: 0,
+      },
+    ],
+  }, 
+]
+
+
+//create 20 cart Products
+export const cartProducts: CartProduct[] = [
+  {
+    cartId: "1",
+    id: "1",
+    name: "i-Shirt Champion White",
+    brand: "Champion",
+    mainImage: "/placeholder.svg?height=300&width=300",
+    price: 299000,
+    salePrice: 239000,
+    discount: 24,
+    quantity: 1,
+    selectedSize: "S",
+    sizes: [
+      {
+        size: "S",
+        stock: 5,
+      },
+      {
+        size: "M",
+        stock: 10,
+      },
+      {
+        size: "L",
+        stock: 0,
+      },
+    ],
+  },
+  {
+    cartId: "2",
+    id: "2",
+    name: "i-Shirt Champion Light White",
+    brand: "Champion",
+    mainImage: "/placeholder.svg?height=300&width=300",
+    price: 299000,
+    salePrice: 198000,
+    discount: 32,
+    quantity: 1,
+    selectedSize: "M",
+    sizes: [
+      {
+        size: "S",
+        stock: 5,
+      },
+      {
+        size: "M",
+        stock: 10,
+      },
+      {
+        size: "L",
+        stock: 0,
+      },
+    ],
+  },
+  {
+    cartId: "3",
+    id: "3",
+    name: "i-Shirt Champion Blue",
+    brand: "Champion",
+    mainImage: "/placeholder.svg?height=300&width=300",
+    price: 299000,
+    salePrice: 239000,
+    discount: 24,
+    quantity: 1,
+    selectedSize: "L",
+    sizes: [
+      {
+        size: "S",
+        stock: 5,
+      },
+      {
+        size: "M",
+        stock: 10,
+      },
+      {
+        size: "L",
+        stock: 0,
+      },
+    ],
+  },
+]
