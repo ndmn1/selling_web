@@ -31,8 +31,6 @@ export function SingleFilter({
 
   // Initialize selected options from URL on component mount
   useEffect(() => {
-    console.log("SingleFilter useEffect");
-    console.log("isFirstRender.current", isFirstRender.current);
     if (isFirstRender.current) {
       isFirstRender.current = false;
 

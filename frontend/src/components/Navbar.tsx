@@ -114,7 +114,7 @@ const Navbar = () => {
           </div>
           <div className="xl:ml-10">
             <Link href="/">
-              <Image src="/logo.png" alt="logo" width={100} height={100} />
+              <Image src="/logo.png" alt="logo" width={100} height={100} priority />
             </Link>
           </div>
 
@@ -138,9 +138,9 @@ const Navbar = () => {
             <div className="hidden lg:block">
               <Search />
             </div>
-            <button>
+            <Link href="/login">
               <MdOutlineAccountCircle fontSize="1.7em" color="white" />
-            </button>
+            </Link>
             <Link className="flex items-center relative" href="/cart">
               <button >
                 <FaShoppingCart fontSize="1.7em" color="white" />

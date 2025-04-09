@@ -2,6 +2,7 @@
 import { RangleFilter } from "./RangeFilter";
 import { SingleFilter } from "./SingleFilter";
 import { useState } from "react";
+import { FaArrowUp } from "react-icons/fa";
 // Price filter options
 const priceOptions = [
   { id: "price-1", label: "Giá dưới 1.000.000đ", min: 0, max: 1000000 },
@@ -50,7 +51,7 @@ const sizeOptions = [
   { id: "40.0", label: "40.0VN", value: "40.0" },
 ];
 export default function Sidebar() {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
@@ -63,20 +64,7 @@ export default function Sidebar() {
         className="md:hidden fixed z-50 bottom-6 right-6 bg-cyan-400 text-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg"
         aria-label="Toggle filters"
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          strokeWidth={1.5}
-          stroke="currentColor"
-          className="w-6 h-6"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 0 1-.659 1.591l-5.432 5.432a2.25 2.25 0 0 0-.659 1.591v2.927a2.25 2.25 0 0 1-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 0 0-.659-1.591L3.659 7.409A2.25 2.25 0 0 1 3 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0 1 12 3Z"
-          />
-        </svg>
+        <FaArrowUp className="w-6 h-6" />
       </button>
 
       {/* Mobile sidebar overlay */}
@@ -90,7 +78,7 @@ export default function Sidebar() {
       {/* Sidebar - hidden on mobile by default, shown when sidebarOpen is true */}
       <div
         className={`
-            fixed md:relative top-0 left-0 h-full w-3/4 md:w-1/4 lg:w-1/5 
+            fixed md:relative top-16 md:top-0 left-0 h-full w-3/4 md:w-1/4 lg:w-1/5 
             bg-white z-40 transform transition-transform duration-300 ease-in-out
             ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} 
             md:translate-x-0 md:block overflow-y-auto
@@ -104,20 +92,7 @@ export default function Sidebar() {
               className="text-gray-500 hover:text-gray-700"
               aria-label="Close filters"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                className="w-6 h-6"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M6 18 18 6M6 6l12 12"
-                />
-              </svg>
+             <FaArrowUp className="w-6 h-6" />
             </button>
           </div>
           <div className="space-y-6">

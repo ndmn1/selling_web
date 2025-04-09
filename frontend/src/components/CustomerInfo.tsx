@@ -1,7 +1,9 @@
-'use client';
+"use client";
 import React from "react";
 import Link from "next/link";
 import { useCartSummary } from "@/context/CartSummaryProvider";
+import { FaChevronDown } from "react-icons/fa";
+import Image from "next/image";
 function CustomerInfo() {
   const { changePaymentMethod } = useCartSummary();
   return (
@@ -21,13 +23,7 @@ function CustomerInfo() {
                 <option>Chị</option>
               </select>
               <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                <svg
-                  className="fill-current h-4 w-4"
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                >
-                  <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
-                </svg>
+                <FaChevronDown className="w-3 h-3" />
               </div>
             </div>
             <input
@@ -89,13 +85,7 @@ function CustomerInfo() {
                 <option>TP.HCM</option>
               </select>
               <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                <svg
-                  className="fill-current h-4 w-4"
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                >
-                  <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
-                </svg>
+                <FaChevronDown className="w-3 h-3" />
               </div>
             </div>
           </div>
@@ -113,13 +103,7 @@ function CustomerInfo() {
                 <option>Thủ Đức</option>
               </select>
               <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                <svg
-                  className="fill-current h-4 w-4"
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                >
-                  <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
-                </svg>
+                <FaChevronDown className="w-3 h-3" />
               </div>
             </div>
           </div>
@@ -137,13 +121,7 @@ function CustomerInfo() {
                 <option>Tân Tạo</option>
               </select>
               <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                <svg
-                  className="fill-current h-4 w-4"
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                >
-                  <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
-                </svg>
+                <FaChevronDown className="w-3 h-3" />
               </div>
             </div>
           </div>
@@ -174,10 +152,12 @@ function CustomerInfo() {
               onChange={(e) => changePaymentMethod(e.target.value)}
             />
             <div className="flex items-center gap-2">
-              <img
+              <Image
                 src="/placeholder.svg?height=40&width=40"
                 alt="COD"
                 className="w-10 h-10"
+                width={40}
+                height={40}
               />
               <span className="font-medium">Thanh toán khi nhận hàng</span>
             </div>
@@ -192,10 +172,12 @@ function CustomerInfo() {
               onChange={(e) => changePaymentMethod(e.target.value)}
             />
             <div className="flex items-center gap-2">
-              <img
+              <Image
                 src="/placeholder.svg?height=40&width=40"
-                alt="VNPAY"
+                alt="COD"
                 className="w-10 h-10"
+                width={40}
+                height={40}
               />
               <span className="font-medium">Ví điện tử VNPAY</span>
             </div>
