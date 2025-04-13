@@ -11,6 +11,7 @@ import { CartProduct } from "@/types/product";
 import { getCookie } from "@/lib/cookies";
 import {  FaChevronDown, FaTrash } from "react-icons/fa";
 import { FiMinus,FiPlus } from "react-icons/fi";
+import { useSession } from "next-auth/react";
 function CartItems() {
   
   const { changeTotal, changeVocherCode, total } = useCartSummary();

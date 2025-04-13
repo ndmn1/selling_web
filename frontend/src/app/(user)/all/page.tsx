@@ -1,8 +1,3 @@
-// import ProductGrid from "@/components/product-grid"
-// import Sidebar from "@/components/sidebar"
-// import Header from "@/components/header"
-// import Pagination from "@/components/pagination"
-// import { products } from "@/data/products"
 import ProductGrid from "@/components/ProductGrid";
 import Sidebar from "@/components/SideBar";
 import Pagination from "@/components/Pagination";
