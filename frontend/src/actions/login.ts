@@ -8,7 +8,8 @@ import { DEFAULT_LOGIN_REDIRECT } from "@/route";
 
 
 export const login = async (
-  values: z.infer<typeof LoginSchema>
+  values: z.infer<typeof LoginSchema>,
+  callbackUrl: string | null,
 ) : Promise<{ success?: string, redirect?: string } | undefined>=> {
   const validatedFields = LoginSchema.safeParse(values);
 
@@ -20,17 +21,13 @@ export const login = async (
   const existingUser = await getUserByEmail(email);
 
   if (!existingUser || !existingUser.email || !existingUser.password) {
-   // return { error: "Email does not exist!" }
     throw new Error("Email does not exist!");
-  }
-  if(existingUser.password == "abcd"){
-    return { success: "Login successful!" };
   }
   try {
     const result = await signIn("credentials", {
       email,
       password,
-      redirectTo: DEFAULT_LOGIN_REDIRECT,
+      redirectTo: callbackUrl || DEFAULT_LOGIN_REDIRECT,
       redirect: false, 
     });
     return { redirect: result };

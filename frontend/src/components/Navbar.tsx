@@ -1,19 +1,26 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { FaShoppingCart } from "react-icons/fa";
-import { MdOutlineAccountCircle } from "react-icons/md";
 import Link from "next/link";
 import NavLink from "./NavLink";
 import Search from "./Search";
-import { IoMdArrowBack } from "react-icons/io";
+import { IoMdArrowBack, IoMdMenu, IoMdSearch } from "react-icons/io";
 import DropDownNavLink from "./DropDownNavLink";
 import { useCart } from "@/context/CartCountProvider";
+import ProfileButton from "./ProfileButton";
+import { MdOutlineAccountCircle } from "react-icons/md";
+import { logout } from "@/actions/logout";
+import { useSession } from "next-auth/react";
+
 interface NavLinkProps {
   path: string;
   name: string;
 }
+
 const Navbar = () => {
+  const session = useSession();
   const navLinks: NavLinkProps[] = [
     {
       path: "/all",
@@ -44,6 +51,7 @@ const Navbar = () => {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const lastScrollY = useRef(0);
   const { cartCount } = useCart();
+
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
@@ -78,10 +86,16 @@ const Navbar = () => {
     }
     setIsOpen(!isOpen);
   };
+
+  const closeAllMenus = () => {
+    setIsOpen(false);
+    setDropDownToggle(false);
+  };
+
   return (
     <header className="mb-16 lg:mb-24">
       <div
-        className={`bg-[#1a1d23] fixed top-0 left-0 right-0 z-50 transition-transform duration-300 ${
+        className={`bg-[#1a1d23] fixed top-0 left-0 right-0 z-30 transition-transform duration-300 ${
           isHeaderVisible ? "translate-y-0" : "-translate-y-full"
         }`}
       >
@@ -96,7 +110,7 @@ const Navbar = () => {
                 toggleNavBar();
               }}
             >
-              <MdOutlineAccountCircle fontSize="1.7em" color="white" />
+              <IoMdMenu fontSize="1.8em" color="white" />
             </button>
             <button
               onClick={() => {
@@ -109,12 +123,18 @@ const Navbar = () => {
                 });
               }}
             >
-              <FaShoppingCart fontSize="1.7em" color="white" />
+              <IoMdSearch fontSize="1.7em" color="white" />
             </button>
           </div>
           <div className="xl:ml-10">
-            <Link href="/">
-              <Image src="/logo.png" alt="logo" width={100} height={100} priority />
+            <Link href="/" onClick={closeAllMenus}>
+              <Image
+                src="/logo.png"
+                alt="logo"
+                width={100}
+                height={100}
+                priority
+              />
             </Link>
           </div>
 
@@ -128,9 +148,15 @@ const Navbar = () => {
                 mouseEnter={handleMouseEnter}
                 mouseLeave={handleMouseLeave}
                 dropdown={toggleDropdown}
+                onClick={closeAllMenus}
               />
               {navLinks.map((link, idx) => (
-                <NavLink key={idx} path={link.path} name={link.name} />
+                <NavLink
+                  key={idx}
+                  path={link.path}
+                  name={link.name}
+                  onClick={closeAllMenus}
+                />
               ))}
             </ul>
           </div>
@@ -138,15 +164,45 @@ const Navbar = () => {
             <div className="hidden lg:block">
               <Search />
             </div>
-            <Link href="/login">
-              <MdOutlineAccountCircle fontSize="1.7em" color="white" />
-            </Link>
+            <div className="relative group">
+              {session.status === "authenticated" ? (
+                <>
+                  <Link className="flex items-center" href="/profile">
+                    <MdOutlineAccountCircle fontSize="1.7em" color="white" />
+                  </Link>
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300">
+                    <div className="px-4 py-2 text-sm text-gray-700 border-b">
+                      {session.data.user?.name || session.data.user?.email}
+                    </div>
+                    <Link
+                      href="/profile"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      Profile
+                    </Link>
+                    <button
+                      onClick={() => {
+                        logout();
+                      }}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      Sign out
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <Link href="/login">
+                  <MdOutlineAccountCircle fontSize="1.7em" color="white" />
+                </Link>
+              )}
+            </div>
             <Link className="flex items-center relative" href="/cart">
-              <button >
+              <button>
                 <FaShoppingCart fontSize="1.7em" color="white" />
               </button>
               <div className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
-                {cartCount} </div>
+                {cartCount}{" "}
+              </div>
             </Link>
           </div>
         </nav>
@@ -200,6 +256,7 @@ const Navbar = () => {
                       <Link
                         href="#"
                         key={idx}
+                        onClick={closeAllMenus}
                         className="flex items-center gap-3 hover:bg-gray-100 p-2 rounded"
                       >
                         <span>{collection}</span>

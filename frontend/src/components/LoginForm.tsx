@@ -1,28 +1,24 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
-//import { doCredentialLogin } from "@/utils/actions";
-import { useActionState, useEffect, useState, useTransition } from "react";
+import { useState } from "react";
 import SocialLogin from "./SocialLogin";
-import { usePathname, useRouter } from "next/navigation";
+import {  useRouter } from "next/navigation";
 import { providerMap } from "@/auth.config";
 import { login } from "@/actions/login";
 import { LoginSchema } from "@/schemas";
-import { z, ZodObject, ZodString, ZodTypeAny } from "zod";
+import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
-import { LinkIntercept } from "./LinkIntercept";
-
+import { useSearchParams } from "next/navigation";
 
 const LoginForm = ({
-  callBackUrl = "/",
   isIntercept = false,
 }: {
-  callBackUrl?: string | undefined;
   isIntercept?: boolean;
 }) => {
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl");
   const router = useRouter();
-  const pathname = usePathname();
   const [success, setSuccess] = useState<string | undefined>("");
   const {
     register,
@@ -39,15 +35,14 @@ const LoginForm = ({
   });
 
   const onSubmit = async (values: z.infer<typeof LoginSchema>) => {
-    await new Promise((resolve) => setTimeout(resolve, 1000));
     setSuccess(undefined);
     try {
-      const data = await login(values);
+      const data = await login(values, callbackUrl);
       if (data?.success) {
         reset();
         setSuccess(data.success);
       } else if (data?.redirect) {
-        router.push(data.redirect);
+        router.replace(data.redirect);
       }
     } catch (err) {
       if (err instanceof Error) {

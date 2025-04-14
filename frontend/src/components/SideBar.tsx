@@ -51,7 +51,7 @@ const sizeOptions = [
   { id: "40.0", label: "40.0VN", value: "40.0" },
 ];
 export default function Sidebar() {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
@@ -61,7 +61,7 @@ export default function Sidebar() {
       {/* Filter toggle button for mobile */}
       <button
         onClick={toggleSidebar}
-        className="md:hidden fixed z-50 bottom-6 right-6 bg-cyan-400 text-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg"
+        className="md:hidden fixed z-20 bottom-6 right-6 bg-cyan-400 text-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg"
         aria-label="Toggle filters"
       >
         <FaArrowUp className="w-6 h-6" />
@@ -70,7 +70,7 @@ export default function Sidebar() {
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <div
-          className="md:hidden fixed inset-0 bg-black bg-opacity-50 z-40"
+          className="md:hidden fixed inset-0 bg-black bg-opacity-50 z-20"
           onClick={toggleSidebar}
         ></div>
       )}
@@ -79,7 +79,7 @@ export default function Sidebar() {
       <div
         className={`
             fixed md:relative top-16 md:top-0 left-0 h-full w-3/4 md:w-1/4 lg:w-1/5 
-            bg-white z-40 transform transition-transform duration-300 ease-in-out
+            bg-white z-20 transform transition-transform duration-300 ease-in-out
             ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} 
             md:translate-x-0 md:block overflow-y-auto
           `}

@@ -8,7 +8,7 @@ export default function LoginPage() {
           <h1 className="text-2xl font-bold">Login</h1>
           <p className="text-gray-600 mt-2">Enter your credentials to access your account</p>
         </div>
-        <LoginForm callBackUrl="/"/>
+        <LoginForm/>
       </div>
     </div>
   )

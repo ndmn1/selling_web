@@ -1,14 +1,14 @@
 import { Modal } from "@/components/Modal"
-import  LoginForm  from "@/components/LoginForm"
+import RegisterForm from "@/components/RegisterForm"
 
 export default function LoginModal() {
   return (
     <Modal>
       <div className="p-3">
-        <h1 className="text-2xl font-bold">Login</h1>
-        <p className="text-gray-600 mt-2">Enter your credentials to access your account</p>
+        <h1 className="text-2xl font-bold">Register</h1>
+        <p className="text-gray-600 mt-2">Create a new account to get started</p>
       </div>
-      <LoginForm callBackUrl="" isIntercept={true}/>
+      <RegisterForm isIntercept={true}/>
     </Modal>
   )
 }
