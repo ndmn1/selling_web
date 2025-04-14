@@ -10,12 +10,14 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 const LoginForm = ({
   isIntercept = false,
 }: {
   isIntercept?: boolean;
 }) => {
+  const { update } = useSession();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl");
   const router = useRouter();
@@ -42,6 +44,7 @@ const LoginForm = ({
         reset();
         setSuccess(data.success);
       } else if (data?.redirect) {
+        await update();
         router.replace(data.redirect);
       }
     } catch (err) {

@@ -4,8 +4,7 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { CartProvider } from "@/context/CartCountProvider";
-import { auth } from "@/auth";
-import { SessionProvider } from "next-auth/react";
+import SessionProvider from "@/components/SessionProvider";
 
 // const geistSans = Geist({
 //   variable: "--font-geist-sans",
@@ -29,19 +28,18 @@ export default async function RootLayout({
   children: React.ReactNode;
   auth_modal: React.ReactNode;
 }>) {
-  const session = await auth();
   return (
-    <SessionProvider session={session}>
-      <html lang="en" suppressHydrationWarning>
-        <body>
+    <html lang="en" suppressHydrationWarning>
+      <body>
+        <SessionProvider>
           <CartProvider>
             <Navbar />
             {children}
             {auth_modal}
             <Footer />
           </CartProvider>
-        </body>
-      </html>
-    </SessionProvider>
+        </SessionProvider>
+      </body>
+    </html>
   );
 }
