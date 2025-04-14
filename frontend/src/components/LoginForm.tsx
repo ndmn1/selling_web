@@ -4,7 +4,7 @@
 import { useActionState, useEffect, useState, useTransition } from "react";
 import SocialLogin from "./SocialLogin";
 import { usePathname, useRouter } from "next/navigation";
-import { providerMap } from "@/auth";
+import { providerMap } from "@/auth.config";
 import { login } from "@/actions/login";
 import { LoginSchema } from "@/schemas";
 import { z, ZodObject, ZodString, ZodTypeAny } from "zod";
@@ -12,6 +12,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { LinkIntercept } from "./LinkIntercept";
+
 
 const LoginForm = ({
   callBackUrl = "/",
