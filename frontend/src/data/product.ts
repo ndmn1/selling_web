@@ -1,6 +1,101 @@
+import { db } from "@/lib/db"
 import type { CartProduct, DetailedProduct, Product } from "@/types/product"
 
-export const products: Product[] = [
+// Server-side functions to get products
+export async function getProducts(page: number = 1, limit: number = 1): Promise<{ products: Product[], total: number }> {
+  const skip = (page - 1) * limit;
+  
+  const [products, total] = await Promise.all([
+    db.product.findMany({
+      include: {
+        sizes: true,
+      },
+      skip,
+      take: limit,
+    }),
+    db.product.count()
+  ]);
+
+  return {
+    products: products.map((product) => ({
+      id: product.id,
+      name: product.name,
+      brand: product.brand,
+      mainImage: product.mainImage,
+      price: product.price,
+      salePrice: product.price * (1 - product.discount / 100),
+      discount: product.discount,
+    })),
+    total
+  };
+}
+
+export async function getProductById(id: string): Promise<DetailedProduct | null> {
+  const product = await db.product.findUnique({
+    where: { id },
+    include: {
+      sizes: true,
+    },
+  })
+
+  if (!product) return null
+
+  return {
+    id: product.id,
+    name: product.name,
+    brand: product.brand,
+    mainImage: product.mainImage,
+    images: product.images,
+    price: product.price,
+    salePrice: product.price * (1 - product.discount / 100),
+    discount: product.discount,
+    description: product.description,
+    sizes: product.sizes.map((size) => ({
+      size: size.size,
+      stock: size.stock,
+    })),
+  }
+}
+
+export async function getCartProducts(userId: string): Promise<CartProduct[]> {
+  const cart = await db.cart.findUnique({
+    where: { userId },
+    include: {
+      items: {
+        include: {
+          product: {
+            include: {
+              sizes: true,
+            },
+          },
+          size: true,
+        },
+      },
+    },
+  })
+
+  if (!cart) return []
+
+  return cart.items.map((item) => ({
+    cartId: item.id,
+    id: item.product.id,
+    name: item.product.name,
+    brand: item.product.brand,
+    mainImage: item.product.mainImage,
+    price: item.product.price,
+    salePrice: item.product.price * (1 - item.product.discount / 100),
+    discount: item.product.discount,
+    quantity: item.quantity,
+    selectedSize: item.size.size,
+    sizes: item.product.sizes.map((size) => ({
+      size: size.size,
+      stock: size.stock,
+    })),
+  }))
+}
+
+// For client-side initial state or fallback
+export const initialProducts: Product[] = [
   {
     id: "1",
     name: "i-Shirt Champion White",
@@ -366,3 +461,4 @@ export const cartProducts: CartProduct[] = [
     ],
   },
 ]
+

@@ -22,6 +22,7 @@ model User {
   role          UserRole        @default(USER)
   accounts      Account[]
   sessions      Session[]
+  cart          Cart?
   // Optional for WebAuthn support
   Authenticator Authenticator[]
 
@@ -82,4 +83,54 @@ model Authenticator {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([userId, credentialID])
+}
+
+model Product {
+  id          String     @id @default(cuid())
+  name        String
+  brand       String
+  mainImage   String
+  price       Float
+  discount    Float
+  description String
+  images      String[]
+  sizes       Size[]
+  cartItems   CartItem[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+model Size {
+  id        String     @id @default(cuid())
+  size      String
+  stock     Int
+  productId String
+  product   Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+  cartItems CartItem[]
+
+  @@unique([productId, size])
+}
+
+model Cart {
+  id        String     @id @default(cuid())
+  userId    String     @unique
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items     CartItem[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model CartItem {
+  id        String   @id @default(cuid())
+  cartId    String
+  cart      Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  sizeId    String
+  size      Size     @relation(fields: [sizeId], references: [id])
+  quantity  Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([cartId, productId, sizeId])
 }

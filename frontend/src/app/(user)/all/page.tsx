@@ -1,7 +1,6 @@
 import ProductGrid from "@/components/ProductGrid";
 import Sidebar from "@/components/SideBar";
 import Pagination from "@/components/Pagination";
-import { products } from "@/data/product";
 import { Suspense } from "react";
 import Loading from "./loading";
 
@@ -11,9 +10,8 @@ export default async function ProductsPage(props: {
 }) {
   const searchParams = await props.searchParams;
   const curPage = Number(searchParams.page) || 1;
-  const itemPerPage = 3;
-  const start = (curPage - 1) * itemPerPage;
-  const end = curPage * itemPerPage;
+  const itemPerPage = 1; // Changed to show more items per page
+
   return (
     <div className="min-h-screen flex flex-col">
       <div className="container mx-auto px-4 py-6">
@@ -25,19 +23,9 @@ export default async function ProductsPage(props: {
                 TẤT CẢ SẢN PHẨM
               </h1>
             </div>
-            <Suspense key={JSON.stringify(searchParams)} fallback={<Loading/>}>
-              <ProductGrid
-                data={
-                  new Promise((resolve) => {
-                    setTimeout(() => resolve(products.slice(start, end)), 1000);
-                  })
-                }
-              />
-              <Pagination
-                total={products.length}
-                itemPerPage={itemPerPage}
-                curPage={curPage}
-              />
+            <Suspense key={JSON.stringify(searchParams)} fallback={<Loading />}>
+              <ProductGrid page={curPage} limit={itemPerPage} />
+              <Pagination itemPerPage={itemPerPage} curPage={curPage} />
             </Suspense>
             {/* <div className="mt-8">
               <Pagination />
