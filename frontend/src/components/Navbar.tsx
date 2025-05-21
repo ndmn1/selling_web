@@ -19,6 +19,7 @@ interface NavLinkProps {
 }
 const Navbar = () => {
   const { data } = useSession();
+  console.log(data);
   const handleLogout = async () => {
     await signOut({ redirect: true, callbackUrl: "/" });
   };

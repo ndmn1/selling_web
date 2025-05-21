@@ -1,5 +1,5 @@
 "use server"
-import { LoginSchema } from "@/schemas";
+import { LoginSchema } from "@/schemas/auth";
 import { signIn } from "@/auth";
 import { getUserByEmail } from "@/data/user";
 import { AuthError } from "next-auth";

@@ -5,7 +5,7 @@ import SocialLogin from "./SocialLogin";
 import { useRouter } from "next/navigation";
 import { providerMap } from "@/auth.config";
 import { register } from "@/actions/register";
-import { RegisterSchema } from "@/schemas";
+import { RegisterSchema } from "@/schemas/auth";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";

@@ -1,10 +1,10 @@
 "use client";
 import { useState } from "react";
 import SocialLogin from "./SocialLogin";
-import {  useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { providerMap } from "@/auth.config";
 import { login } from "@/actions/login";
-import { LoginSchema } from "@/schemas";
+import { LoginSchema } from "@/schemas/auth";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -12,11 +12,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 
-const LoginForm = ({
-  isIntercept = false,
-}: {
-  isIntercept?: boolean;
-}) => {
+const LoginForm = ({ isIntercept = false }: { isIntercept?: boolean }) => {
   const { update } = useSession();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl");
@@ -54,13 +50,13 @@ const LoginForm = ({
     }
   };
 
-  const handleLinkClick = (targetUrl : string) => {
+  const handleLinkClick = (targetUrl: string) => {
     if (isIntercept) {
       router.replace(targetUrl);
     } else {
       router.push(targetUrl);
     }
-  }
+  };
 
   return (
     <div className="flex flex-col items-center gap-6 ">
@@ -102,7 +98,11 @@ const LoginForm = ({
           <Link href="#" className="text-sm text-slate-500 hover:underline">
             Forgot password?
           </Link>
-          <button type="button" onClick= {() => handleLinkClick("/register")} className="text-sm text-slate-500 hover:underline"  >
+          <button
+            type="button"
+            onClick={() => handleLinkClick("/register")}
+            className="text-sm text-slate-500 hover:underline"
+          >
             Create an account
           </button>
         </div>
