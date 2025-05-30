@@ -79,8 +79,8 @@ async function main() {
       discount: 20,
       description: 'The New Balance 574 combines classic style with modern comfort.',
       images: [
-        'https://example.com/new-balance-574-1.jpg',
-        'https://example.com/new-balance-574-2.jpg',
+        'https://picsum.photos/200',
+        'https://picsum.photos/200',
       ],
       sizes: [
         { size: 'US 7', stock: 5 },

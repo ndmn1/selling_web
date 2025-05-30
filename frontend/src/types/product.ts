@@ -12,10 +12,10 @@ export interface DetailedProduct extends Product {
   images: string[]
   description: string
   sizes: {
+    id: string
     size: string
     stock: number
   }[]
-
 }
 
 export interface CartProduct extends Product {
@@ -23,6 +23,7 @@ export interface CartProduct extends Product {
   quantity: number
   selectedSize: string
   sizes: {
+    id: string
     size: string
     stock: number
   }[]

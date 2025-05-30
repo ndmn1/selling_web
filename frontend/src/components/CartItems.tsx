@@ -5,15 +5,19 @@ import { useCartSummary } from "@/context/CartSummaryProvider";
 import { useEffect, useMemo, useState } from "react";
 import React from "react";
 import Image from "next/image";
-import { cartProducts, products, detailProducts } from "@/data/product";
+import {
+  getCartProducts,
+  cartProducts,
+  initialProducts,
+  detailProducts,
+} from "@/data/product";
 import { DetailedProduct } from "@/types/product";
 import { CartProduct } from "@/types/product";
 import { getCookie } from "@/lib/cookies";
-import {  FaChevronDown, FaTrash } from "react-icons/fa";
-import { FiMinus,FiPlus } from "react-icons/fi";
+import { FaChevronDown, FaTrash } from "react-icons/fa";
+import { FiMinus, FiPlus } from "react-icons/fi";
 import { useSession } from "next-auth/react";
 function CartItems() {
-  
   const { changeTotal, changeVocherCode, total } = useCartSummary();
   const [editId, setEditId] = useState<string | null>(null);
   const formatPrice = (price: number) => {
@@ -81,9 +85,7 @@ function CartItems() {
     if (checked) {
       setChooseItems((prev) => [...prev, cartId]);
     } else {
-      setChooseItems((prev) =>
-        prev.filter((item) => item !== cartId)
-      );
+      setChooseItems((prev) => prev.filter((item) => item !== cartId));
     }
   };
   const handleChooseAll = (checked: boolean) => {
@@ -173,7 +175,12 @@ function CartItems() {
 
       <div className="flex items-center justify-between text-sm border-b pb-4">
         <div className="flex items-center space-x-2">
-          <input type="checkbox" id="select-all" className="w-4 h-4" onChange={(e) => handleChooseAll(e.target.checked)}/>
+          <input
+            type="checkbox"
+            id="select-all"
+            className="w-4 h-4"
+            onChange={(e) => handleChooseAll(e.target.checked)}
+          />
           <label htmlFor="select-all">TẤT CẢ SẢN PHẨM</label>
         </div>
         <button className="text-gray-500">XÓA TẤT CẢ</button>
@@ -198,10 +205,7 @@ function CartItems() {
                 />
                 <div className="relative h-24 w-24 bg-gray-100">
                   <Image
-                    src={
-                      cartItem.mainImage ||
-                      "/logo.png"
-                    }
+                    src={cartItem.mainImage || "/logo.png"}
                     alt={cartItem.name}
                     fill
                     className="object-cover"

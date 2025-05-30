@@ -51,6 +51,7 @@ export async function getProductById(id: string): Promise<DetailedProduct | null
     discount: product.discount,
     description: product.description,
     sizes: product.sizes.map((size) => ({
+      id: size.id,
       size: size.size,
       stock: size.stock,
     })),
@@ -88,6 +89,7 @@ export async function getCartProducts(userId: string): Promise<CartProduct[]> {
     quantity: item.quantity,
     selectedSize: item.size.size,
     sizes: item.product.sizes.map((size) => ({
+      id: size.id,
       size: size.size,
       stock: size.stock,
     })),
@@ -271,14 +273,17 @@ export const detailProducts : DetailedProduct[] = [
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam fringilla augue nec est tristique auctor. Donec non est at libero.",
     sizes: [
       {
+        id: "1-s",
         size: "S",
         stock: 5,
       },
       {
+        id: "1-m",
         size: "M",
         stock: 10,
       },
       {
+        id: "1-l",
         size: "L",
         stock: 0,
       },
@@ -302,14 +307,17 @@ export const detailProducts : DetailedProduct[] = [
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam fringilla augue nec est tristique auctor. Donec non est at libero.",
     sizes: [
       {
+        id: "2-s",
         size: "S",
         stock: 5,
       },
       {
+        id: "2-m",
         size: "M",
         stock: 10,
       },
       {
+        id: "2-l",
         size: "L",
         stock: 0,
       },
@@ -333,14 +341,17 @@ export const detailProducts : DetailedProduct[] = [
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam fringilla augue nec est tristique auctor. Donec non est at libero.",
     sizes: [
       {
+        id: "3-s",
         size: "S",
         stock: 5,
       },
       {
+        id: "3-m",
         size: "M",
         stock: 10,
       },
       {
+        id: "3-l",
         size: "L",
         stock: 0,
       },
@@ -364,14 +375,17 @@ export const detailProducts : DetailedProduct[] = [
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam fringilla augue nec est tristique auctor. Donec non est at libero.",
     sizes: [
       {
+        id: "4-s",
         size: "S",
         stock: 5,
       },
       {
+        id: "4-m",
         size: "M",
         stock: 10,
       },
       {
+        id: "4-l",
         size: "L",
         stock: 0,
       },
@@ -395,14 +409,17 @@ export const cartProducts: CartProduct[] = [
     selectedSize: "S",
     sizes: [
       {
+        id: "1-s",
         size: "S",
         stock: 5,
       },
       {
+        id: "1-m",
         size: "M",
         stock: 10,
       },
       {
+        id: "1-l",
         size: "L",
         stock: 0,
       },
@@ -421,14 +438,17 @@ export const cartProducts: CartProduct[] = [
     selectedSize: "M",
     sizes: [
       {
+        id: "2-s",
         size: "S",
         stock: 5,
       },
       {
+        id: "2-m",
         size: "M",
         stock: 10,
       },
       {
+        id: "2-l",
         size: "L",
         stock: 0,
       },
@@ -447,14 +467,17 @@ export const cartProducts: CartProduct[] = [
     selectedSize: "L",
     sizes: [
       {
+        id: "3-s",
         size: "S",
         stock: 5,
       },
       {
+        id: "3-m",
         size: "M",
         stock: 10,
       },
       {
+        id: "3-l",
         size: "L",
         stock: 0,
       },

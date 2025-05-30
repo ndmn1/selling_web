@@ -36,12 +36,13 @@ const LoginForm = ({ isIntercept = false }: { isIntercept?: boolean }) => {
     setSuccess(undefined);
     try {
       const data = await login(values, callbackUrl);
+      console.log("Login data:", data);
       if (data?.success) {
         reset();
         setSuccess(data.success);
       } else if (data?.redirect) {
-        await update();
         router.replace(data.redirect);
+        await update();
       }
     } catch (err) {
       if (err instanceof Error) {

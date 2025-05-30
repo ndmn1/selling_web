@@ -1,5 +1,5 @@
 "use client";
-import {  useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import clsx from "clsx";
 import {
@@ -12,27 +12,36 @@ import {
   FaTint,
 } from "react-icons/fa";
 import { DetailedProduct } from "@/types/product";
-import { useRouter } from 'next/navigation';
+import { useRouter } from "next/navigation";
 import { useCart } from "@/context/CartCountProvider";
-function ProductInfo({ data }: { data: Promise<DetailedProduct> }) {
-  const [product, setProduct] = useState<DetailedProduct>();
+
+function ProductInfo({ product }: { product: DetailedProduct }) {
   const [selectedImage, setSelectedImage] = useState(0);
-  const [selectedSize, setSelectedSize] = useState("M");
+  const [selectedSize, setSelectedSize] = useState("");
+  const [selectedSizeId, setSelectedSizeId] = useState("");
   const [addedToBag, setAddedToBag] = useState(false);
+  const [loading, setLoading] = useState(false);
   const { addToCart } = useCart();
   const router = useRouter();
+
   useEffect(() => {
-    data?.then((data) => {
-      setProduct(data);
-    });
-  });
+    // Set default size to first available size
+    if (product.sizes && product.sizes.length > 0) {
+      const firstAvailableSize = product.sizes.find((size) => size.stock > 0);
+      if (firstAvailableSize) {
+        setSelectedSize(firstAvailableSize.size);
+        setSelectedSizeId(firstAvailableSize.id);
+      }
+    }
+  }, [product]);
 
-
-
-  const handleAddToBag = () => {
+  const handleAddToBag = async () => {
+    if (!selectedSizeId || !product) return;
+    setLoading(true);
+    await addToCart(product.id, selectedSizeId, 1);
     setAddedToBag(true);
-    addToCart(product?.id as string, selectedSize);
     router.refresh();
+    setLoading(false);
   };
 
   const handleCloseNotification = () => {
@@ -40,12 +49,30 @@ function ProductInfo({ data }: { data: Promise<DetailedProduct> }) {
   };
 
   const nextImage = () => {
-    setSelectedImage((prev) => (product&& prev === product.images.length - 1 ? 0 : prev + 1));
+    setSelectedImage((prev) =>
+      product && prev === product.images.length - 1 ? 0 : prev + 1
+    );
   };
 
   const prevImage = () => {
-    setSelectedImage((prev) => (product&& prev === 0 ? product.images.length - 1 : prev - 1));
+    setSelectedImage((prev) =>
+      product && prev === 0 ? product.images.length - 1 : prev - 1
+    );
   };
+
+  const handleSizeSelect = (size: {
+    id: string;
+    size: string;
+    stock: number;
+  }) => {
+    if (size.stock > 0) {
+      setSelectedSize(size.size);
+      setSelectedSizeId(size.id);
+    }
+  };
+
+  const salePrice = product.price - (product.price * product.discount) / 100;
+
   return (
     <>
       {/* Product Page */}
@@ -55,7 +82,7 @@ function ProductInfo({ data }: { data: Promise<DetailedProduct> }) {
             <div className="md:flex gap-2 p-2  absolute inset-0">
               {/* Thumbnails - Desktop Only */}
               <div className="hidden lg:flex flex-col gap-2 p-2 overflow-hidden">
-                {product&&product.images.map((img, index) => (
+                {product.images.map((img, index) => (
                   <div
                     key={index}
                     className={clsx(
@@ -68,7 +95,7 @@ function ProductInfo({ data }: { data: Promise<DetailedProduct> }) {
                     onMouseEnter={() => setSelectedImage(index)}
                   >
                     <Image
-                      src={"/placeholder.svg?height=80&width=80"}
+                      src={"https://picsum.photos/200"}
                       alt={`Product view ${index + 1}`}
                       width={40}
                       height={40}
@@ -87,7 +114,7 @@ function ProductInfo({ data }: { data: Promise<DetailedProduct> }) {
 
                 <Image
                   src={"https://picsum.photos/200"}
-                  alt="Nike Vomero 18"
+                  alt={product.name}
                   fill
                   className="object-cover "
                 />
@@ -110,7 +137,7 @@ function ProductInfo({ data }: { data: Promise<DetailedProduct> }) {
 
                 {/* Mobile Indicator Dots */}
                 <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-1 md:hidden">
-                  {product&&product.images.map((_, index) => (
+                  {product.images.map((_, index) => (
                     <button
                       key={index}
                       className={clsx(
@@ -129,12 +156,28 @@ function ProductInfo({ data }: { data: Promise<DetailedProduct> }) {
 
         {/* Product Info */}
         <div className="p-4 md:p-6 w-full lg:w-[450px]">
-          <div className="text-red-600 font-medium mb-1">
-            Sustainable Materials
+          <div className="text-red-600 font-medium mb-1">{product.brand}</div>
+          <h1 className="text-2xl md:text-3xl font-bold">{product.name}</h1>
+          <p className="text-gray-600 mb-2">{product.brand} Product</p>
+          <div className="mb-6">
+            {product.discount > 0 ? (
+              <div className="flex items-center gap-2">
+                <p className="text-xl font-bold">
+                  {salePrice.toLocaleString()}₫
+                </p>
+                <p className="text-lg text-gray-500 line-through">
+                  {product.price.toLocaleString()}₫
+                </p>
+                <span className="bg-red-100 text-red-600 px-2 py-1 rounded text-sm">
+                  -{product.discount}%
+                </span>
+              </div>
+            ) : (
+              <p className="text-xl font-bold">
+                {product.price.toLocaleString()}₫
+              </p>
+            )}
           </div>
-          <h1 className="text-2xl md:text-3xl font-bold">Nike Vomero 18</h1>
-          <p className="text-gray-600 mb-2">Women&#39;s Road Running Shoes</p>
-          <p className="text-xl font-bold mb-6">4,259,000₫</p>
 
           {/* Size Selection */}
           <div className="mb-6">
@@ -146,9 +189,9 @@ function ProductInfo({ data }: { data: Promise<DetailedProduct> }) {
             </div>
 
             <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
-              {product?.sizes.map((size) => (
+              {product.sizes.map((size) => (
                 <button
-                  key={size.size}
+                  key={size.id}
                   className={clsx(
                     "border rounded-md py-3 px-2 text-center transition-all",
                     selectedSize === size.size
@@ -157,7 +200,7 @@ function ProductInfo({ data }: { data: Promise<DetailedProduct> }) {
                     !size.stock && "opacity-40 cursor-not-allowed bg-gray-100"
                   )}
                   disabled={!size.stock}
-                  onClick={() => size.stock && setSelectedSize(size.size)}
+                  onClick={() => handleSizeSelect(size)}
                 >
                   {size.size}
                 </button>
@@ -168,10 +211,16 @@ function ProductInfo({ data }: { data: Promise<DetailedProduct> }) {
           {/* Add to Bag & Favorite */}
           <div className="space-y-3">
             <button
-              className="w-full bg-black hover:bg-gray-800 text-white py-6 rounded-full"
+              className={clsx(
+                "w-full py-6 rounded-full transition-colors",
+                selectedSizeId
+                  ? "bg-black hover:bg-gray-800 text-white"
+                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
+              )}
               onClick={handleAddToBag}
+              disabled={!selectedSizeId || loading}
             >
-              Add to Bag
+              {loading ? "Adding..." : "Add to Bag"}
             </button>
             <button className="w-full py-6 rounded-full border border-gray-300 bg-white hover:bg-gray-50 flex items-center justify-center">
               <FaHeart className="w-5 h-5 mr-2" />
@@ -195,13 +244,7 @@ function ProductInfo({ data }: { data: Promise<DetailedProduct> }) {
               </p>
             </div>
 
-            <p className="text-gray-700">
-              Maximum cushioning in the Vomero provides a comfortable ride for
-              everyday runs. Our softest, most cushioned ride has lightweight
-              ZoomX foam stacked on top of responsive ReactX foam in the
-              midsole. Plus, a redesigned traction pattern offers a smooth
-              heel-to-toe transition.
-            </p>
+            <p className="text-gray-700">{product.description}</p>
           </div>
         </div>
       </div>
@@ -221,25 +264,23 @@ function ProductInfo({ data }: { data: Promise<DetailedProduct> }) {
 
             <div className="flex gap-4 mb-6">
               <Image
-                src="/images/vomero-main.png"
-                alt="Nike Vomero 18"
+                src={"https://picsum.photos/200"}
+                alt={product.name}
                 width={80}
                 height={80}
                 className="object-cover rounded-md"
               />
               <div>
-                <h3 className="font-medium">Nike Vomero 18</h3>
-                <p className="text-sm text-gray-600">
-                  Women&#39;s Road Running Shoes
-                </p>
+                <h3 className="font-medium">{product.name}</h3>
+                <p className="text-sm text-gray-600">{product.brand}</p>
                 <p className="text-sm text-gray-600">Size: {selectedSize}</p>
-                <p className="font-medium">4,259,000₫</p>
+                <p className="font-medium">{salePrice.toLocaleString()}₫</p>
               </div>
             </div>
 
             <div className="space-y-3">
               <button className="w-full bg-white hover:bg-gray-50 text-black border border-gray-300 py-6 rounded-full">
-                View Bag (1)
+                View Bag
               </button>
               <button className="w-full bg-black hover:bg-gray-800 text-white py-6 rounded-full">
                 Checkout

@@ -19,7 +19,7 @@ interface NavLinkProps {
 }
 const Navbar = () => {
   const { data } = useSession();
-  console.log(data);
+  // console.log(data);
   const handleLogout = async () => {
     await signOut({ redirect: true, callbackUrl: "/" });
   };
@@ -52,7 +52,7 @@ const Navbar = () => {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const lastScrollY = useRef(0);
   const { cartCount } = useCart();
-
+  // console.log("cartCount", cartCount);
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
