@@ -1,5 +1,4 @@
 "use server"
-import { revalidatePath } from "next/cache" // revalidate the cart page when the cart is updated
 import { db } from "@/lib/db"
 
 const prisma = db
@@ -60,7 +59,7 @@ export async function addToCart(userId: string, productId: string, sizeId: strin
       })
     }
 
-    revalidatePath("/cart")
+  //  revalidatePath("/cart")
     return { success: true, message: "Item added to cart" }
   } catch (error) {
     console.error("Error adding to cart:", error)
@@ -95,7 +94,7 @@ export async function removeFromCart(userId: string, productId: string, sizeId: 
       where: { id: cartItem.id }
     })
 
-    revalidatePath("/cart")
+   // revalidatePath("/cart")
     return { success: true, message: "Item removed from cart" }
   } catch (error) {
     console.error("Error removing from cart:", error)
@@ -135,7 +134,7 @@ export async function updateCartItemQuantity(userId: string, productId: string, 
       data: { quantity }
     })
 
-    revalidatePath("/cart")
+   // revalidatePath("/cart")
     return { success: true, message: "Cart updated" }
   } catch (error) {
     console.error("Error updating cart:", error)
@@ -188,7 +187,7 @@ export async function changeItemSize(userId: string, productId: string, oldSizeI
       })
     }
 
-    revalidatePath("/cart")
+   // revalidatePath("/cart")
     return { success: true, message: "Item size updated" }
   } catch (error) {
     console.error("Error changing item size:", error)
@@ -267,7 +266,7 @@ export async function syncCartToDatabase(userId: string, cookieCart: CartItems) 
       }
     }
 
-    revalidatePath("/cart")
+   // revalidatePath("/cart")
     return { success: true, message: "Cart synced to database" }
   } catch (error) {
     console.error("Error syncing cart to database:", error)
@@ -354,5 +353,60 @@ export async function getCartTotal() {
     return 0
   }
 }
+
+// Get cart items from cookies (for guest users)
+export async function getCartItemFromCookies(cookieCartItems: CartItems) {
+  try {
+    const flattenedItems = [];
+
+    // Convert the nested structure to a flat array for display
+    for (const [productId, sizes] of Object.entries(cookieCartItems)) {
+      for (const [sizeId, quantity] of Object.entries(sizes)) {
+        if (quantity > 0) {
+          // Get product details from database
+          const product = await prisma.product.findUnique({
+            where: { id: productId },
+            include: {
+              sizes: true,
+            },
+          });
+
+          if (product) {
+            // Find the specific size
+            const selectedSize = product.sizes.find(size => size.id === sizeId);
+            
+            if (selectedSize) {
+              flattenedItems.push({
+                cartId: `${productId}-${selectedSize.size}`,
+                id: product.id,
+                name: product.name,
+                brand: product.brand,
+                mainImage: product.mainImage,
+                price: product.price,
+                salePrice: product.price * (1 - product.discount / 100),
+                discount: product.discount,
+                quantity,
+                selectedSize: selectedSize.size,
+                sizes: product.sizes.map((size) => ({
+                  id: size.id,
+                  size: size.size,
+                  stock: size.stock,
+                })),
+              });
+            }
+          }
+        }
+      }
+    }
+
+    return flattenedItems;
+  } catch (error) {
+    console.error("Error getting cart items from cookies:", error);
+    return [];
+  }
+}
+
+
+
 
 

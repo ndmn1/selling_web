@@ -190,7 +190,7 @@ const Navbar = () => {
                   </div>
                 </>
               ) : (
-                <Link href="/login">
+                <Link href="/profile">
                   <MdOutlineAccountCircle fontSize="1.7em" color="white" />
                 </Link>
               )}

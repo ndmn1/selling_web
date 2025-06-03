@@ -20,7 +20,7 @@ import {
   getCartCount as getCartCountDB,
   clearCart as clearCartDB,
 } from "@/actions/cart";
-
+import { usePathname } from "next/navigation";
 // Define the type for our cart context
 type CartContextType = {
   cartCount: number;
@@ -37,7 +37,7 @@ type CartContextType = {
     newSizeId: string,
     newSizeStock: number
   ) => void;
-  handleLogin: (id: string) => void;
+  getCookieCartItems: () => Record<string, Record<string, number>>;
 };
 
 // Create the context with default values
@@ -47,7 +47,7 @@ const CartContext = createContext<CartContextType>({
   removeFromCart: () => {},
   changeItemQuantity: () => {},
   changeItemSize: () => {},
-  handleLogin: () => {},
+  getCookieCartItems: () => ({}),
 });
 
 // Custom hook to use the cart context
@@ -57,16 +57,20 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [cartCount, setCartCount] = useState(0);
   const { data: session, status } = useSession();
   const [previousUserId, setPreviousUserId] = useState<string | null>(null); // check if the user has logged in or out
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const pathname = usePathname();
   const calculateCartCount = (
     // calculate the total number of items in the cart in cookies
     items: Record<string, Record<string, number>>
   ) => {
     let totalCount = 0;
-    Object.values(items).forEach((sizeObj) => {
-      Object.values(sizeObj as Record<string, number>).forEach((quantity) => {
-        totalCount += quantity;
+    if (items) {
+      Object.values(items).forEach((sizeObj) => {
+        Object.values(sizeObj as Record<string, number>).forEach((quantity) => {
+          totalCount += quantity;
+        });
       });
-    });
+    }
     return totalCount;
   };
 
@@ -95,46 +99,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     []
   );
 
-  const handleLogin = async (id: string) => {
-    const cookieItems = getCookieCartItems();
-    console.log("currentUserId", id);
-    if (id) {
-      console.log("User logged in");
-      try {
-        if (Object.keys(cookieItems).length > 0) {
-          console.log("Cookie has data, clearing DB and syncing cookie to DB");
-          const clearResult = await clearCartDB(id);
-          console.log("Clear result:", clearResult);
-
-          const syncResult = await syncCartToDatabase(id, cookieItems);
-          console.log("Sync result:", syncResult);
-        } else {
-          console.log("Cookie is empty, using existing DB data");
-          const dbCartItems = await syncCartFromDatabase(id);
-          console.log("DB cart items:", dbCartItems);
-          setCookieCartItems(dbCartItems);
-        }
-        // Get updated count from database
-        const dbCount = await getCartCountDB(id);
-        console.log("dbCount", dbCount, "type:", typeof dbCount);
-
-        if (typeof dbCount === "number") {
-          setCartCount(dbCount);
-        } else {
-          console.error("Invalid cart count:", dbCount);
-          setCartCount(0);
-        }
-      } catch (error) {
-        console.error("Error in handleLogin:", error);
-        setCartCount(0);
-      }
-    }
-  };
   // Initialize cart and handle user login/logout
   useEffect(() => {
     const handleCartInitialization = async () => {
-      if (status === "loading") return;
-
+      if (status === "loading" || isLoggingIn || pathname === "/login") return;
       try {
         const currentUserId = session?.user?.id || null;
         const cookieItems = getCookieCartItems();
@@ -193,7 +161,16 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     };
 
     handleCartInitialization();
-  }, [session?.user?.id, status, previousUserId, setCookieCartItems]);
+  }, [session?.user?.id, status, previousUserId, setCookieCartItems, isLoggingIn]);
+
+  useEffect(() => {
+    if (pathname === "/login" && status === "authenticated") {
+      setIsLoggingIn(true);
+    }
+    if (pathname !== "/login" && status === "authenticated") {
+      setIsLoggingIn(false);
+    }
+  }, [pathname, status]);
 
   const addToCart = async (
     productId: string,
@@ -389,13 +366,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     // Update cookie cart items
     const cartItems = getCookieCartItems();
     if (cartItems[productId] && cartItems[productId][oldSizeId] != null) {
-        const oldQuantity = cartItems[productId][oldSizeId];
-        const newQuantity = cartItems[productId][newSizeId] || 0;
-        cartItems[productId][newSizeId] = Math.min(
-          newQuantity + oldQuantity,
-          newSizeStock
-        );
-        delete cartItems[productId][oldSizeId];
+      const oldQuantity = cartItems[productId][oldSizeId];
+      const newQuantity = cartItems[productId][newSizeId] || 0;
+      cartItems[productId][newSizeId] = Math.min(
+        newQuantity + oldQuantity,
+        newSizeStock
+      );
+      delete cartItems[productId][oldSizeId];
       setCookieCartItems(cartItems);
     }
   };
@@ -408,7 +385,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         removeFromCart,
         changeItemQuantity,
         changeItemSize,
-        handleLogin,
+        getCookieCartItems,
       }}
     >
       {children}

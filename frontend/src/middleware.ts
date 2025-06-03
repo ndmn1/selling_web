@@ -7,12 +7,12 @@ const { auth } = NextAuth(authConfig);
 export default auth((req) => {
   const { nextUrl } = req;
   const isLoggedIn = !!req.auth;
-
+  console.log("isLoggedIn", isLoggedIn);
   const isApiAuthRoute = nextUrl.pathname.startsWith(apiAuthPrefix);
   const isPublicRoute = publicRoutes.includes(nextUrl.pathname) || nextUrl.pathname.startsWith('/product');
   const isAuthRoute = authRoutes.includes(nextUrl.pathname);
 
-  if (req.headers.get("accept") == "text/x-component") return; // pass through for server actions
+ // if (req.headers.get("accept") == "text/x-component") return; // pass through for server actions
   
   if (isApiAuthRoute) return;
 
@@ -30,7 +30,7 @@ export default auth((req) => {
     }
 
     const encodedCallbackUrl = encodeURIComponent(callbackUrl);
-
+    console.log("redirecting to login", `/login?callbackUrl=${encodedCallbackUrl}`);
     return Response.redirect(new URL(
       `/login?callbackUrl=${encodedCallbackUrl}`,
       nextUrl

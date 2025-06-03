@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useCartSummary } from "@/context/CartSummaryProvider";
 import { FaChevronDown } from "react-icons/fa";
 import Image from "next/image";
+import { PAYMENT_METHOD } from "@/constant";
 function CustomerInfo() {
   const { changePaymentMethod } = useCartSummary();
   return (
@@ -159,7 +160,7 @@ function CustomerInfo() {
                 width={40}
                 height={40}
               />
-              <span className="font-medium">Thanh toán khi nhận hàng</span>
+              <span className="font-medium">{PAYMENT_METHOD.cod}</span>
             </div>
           </label>
 
@@ -167,19 +168,19 @@ function CustomerInfo() {
             <input
               type="radio"
               name="payment"
-              value="vnpay"
+              value="bank_transfer"
               className="w-4 h-4"
               onChange={(e) => changePaymentMethod(e.target.value)}
             />
             <div className="flex items-center gap-2">
               <Image
                 src="/placeholder.svg?height=40&width=40"
-                alt="COD"
+                alt="Bank"
                 className="w-10 h-10"
                 width={40}
                 height={40}
               />
-              <span className="font-medium">Ví điện tử VNPAY</span>
+              <span className="font-medium">{PAYMENT_METHOD.bank_transfer}</span>
             </div>
             <div className="text-xs text-gray-500 ml-12">
               Quét QR để thanh toán

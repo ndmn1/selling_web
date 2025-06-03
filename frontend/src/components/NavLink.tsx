@@ -10,7 +10,11 @@ interface NavLinkProps {
 function NavLink(props: NavLinkProps) {
   return (
     <li className="hover:text-gray-300 hover:bg-neutral-900 lg:h-full flex items-center px-4 text-sm h-10">
-      <Link href={props.path} onClick={props.onClick}>
+      <Link
+        href={props.path}
+        onClick={props.onClick}
+        className="h-full w-full flex items-center"
+      >
         {props.name}
       </Link>
     </li>
