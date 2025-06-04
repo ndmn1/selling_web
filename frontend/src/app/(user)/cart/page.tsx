@@ -1,6 +1,6 @@
-import CartBottomBar from "@/components/CartBottomBar";
-import CartItemServer from "@/components/CartItems";
-import CustomerInfo from "@/components/CustomerInfo";
+import CartBottomBar from "@/app/(user)/cart/_components/CartBottomBar";
+import CartItemServer from "@/app/(user)/cart/_components/CartItems";
+import CustomerInfo from "@/app/(user)/cart/_components/CustomerInfo";
 import Loading from "../all/loading";
 import { Suspense } from "react";
 

@@ -1,4 +1,4 @@
-import ProductGrid from "@/components/ProductGrid";
+import ProductGrid from "@/app/(user)/all/_components/ProductGrid";
 import Sidebar from "@/components/SideBar";
 import Pagination from "@/components/Pagination";
 import { Suspense } from "react";

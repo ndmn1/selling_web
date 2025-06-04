@@ -1,5 +1,5 @@
 "use client";
-import ProductItem from "@/components/ProductItem";
+import ProductItem from "@/app/(user)/all/_components/ProductItem";
 import { Product } from "@/types/product";
 
 function RelatedProducts({ products }: { products: Product[] }) {

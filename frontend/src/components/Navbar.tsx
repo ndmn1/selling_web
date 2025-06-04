@@ -94,7 +94,7 @@ const Navbar = () => {
   };
 
   return (
-    <header className="mb-16 lg:mb-24">
+    <header className="mb-16 lg:mb-20">
       <div
         className={`bg-[#1a1d23] fixed top-0 left-0 right-0 z-30 transition-transform duration-300 ${
           isHeaderVisible ? "translate-y-0" : "-translate-y-full"
@@ -102,7 +102,7 @@ const Navbar = () => {
       >
         <nav
           ref={navRef}
-          className="h-16 lg:h-24 flex-row flex w-full justify-between items-center text-white"
+          className="h-16 lg:h-20 flex-row flex w-full justify-between items-center text-white"
         >
           <div className="flex gap-2 mx-3 lg:hidden">
             <button
@@ -231,7 +231,7 @@ const Navbar = () => {
             ref={dropdownRef}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
-            className={`h-svh lg:h-auto fixed lg:left-1/2 lg:-translate-x-1/2 w-64 lg:w-2/3 top-16 lg:top-24 bg-white text-black shadow-lg z-50 transition-transform ${
+            className={`h-svh lg:h-auto fixed lg:left-1/2 lg:-translate-x-1/2 w-64 lg:w-2/3 top-16 lg:top-20 bg-white text-black shadow-lg z-50 transition-transform ${
               dropDownToggle ? "translate-x-0" : "-translate-x-64"
             }`}
           >

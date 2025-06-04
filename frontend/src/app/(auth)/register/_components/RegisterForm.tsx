@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import SocialLogin from "./SocialLogin";
+import SocialLogin from "../../login/_components/SocialLogin";
 import { useRouter } from "next/navigation";
 import { providerMap } from "@/auth.config";
 import { register } from "@/actions/register";

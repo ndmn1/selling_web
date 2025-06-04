@@ -1,5 +1,5 @@
-import ProductInfo from "@/components/ProductInfo";
-import RelatedProducts from "@/components/RelatedProducts";
+import ProductInfo from "@/app/(user)/product/[id]/_components/ProductInfo";
+import RelatedProducts from "@/app/(user)/product/[id]/_components/RelatedProducts";
 import { getProductById, getProducts } from "@/data/product";
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
