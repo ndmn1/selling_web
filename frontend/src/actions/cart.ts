@@ -245,11 +245,11 @@ export async function syncCartToDatabase(userId: string, cookieCart: CartItems) 
             item.productId === productId && item.sizeId === sizeId
           )
 
-          if (existingItem) {
+          if (existingItem && existingItem.quantity !== quantity) {
             // Update quantity (add cookie quantity to existing)
             await prisma.cartItem.update({
               where: { id: existingItem.id },
-              data: { quantity: existingItem.quantity + quantity }
+              data: { quantity: quantity }
             })
           } else {
             // Create new cart item

@@ -76,8 +76,9 @@ export async function getCartProducts(userId: string): Promise<CartProduct[]> {
   })
 
   if (!cart) return []
+  console.log(cart);
 
-  return cart.items.map((item) => ({
+  const cartItems = cart.items.map((item) => ({
     cartId: item.id,
     id: item.product.id,
     name: item.product.name,
@@ -94,6 +95,8 @@ export async function getCartProducts(userId: string): Promise<CartProduct[]> {
       stock: size.stock,
     })),
   }))
+  console.log("cartItems", cartItems);
+  return cartItems;
 }
 
 // For client-side initial state or fallback

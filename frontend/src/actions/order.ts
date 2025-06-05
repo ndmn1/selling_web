@@ -1,20 +1,31 @@
-import { NextRequest, NextResponse } from "next/server";
+"use server";
+
 import { db } from "@/lib/db";
 import { auth } from "@/auth";
+import { revalidatePath } from "next/cache";
 
-export async function POST(req: NextRequest) {
+import { CartProduct } from "@/types/product";
+
+interface CreateOrderData {
+  paymentMethod?: string;
+  voucherCode?: string;
+  shippingAddress?: string;
+  phoneNumber?: string;
+  notes?: string;
+  cartItems?: CartProduct[];
+}
+
+export async function createOrder(orderData: CreateOrderData = {}) {
   try {
     const session = await auth();
     
     if (!session?.user?.id) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
+      throw new Error("Unauthorized");
     }
 
-    const { paymentMethod, voucherCode, shippingAddress, phoneNumber, notes } = await req.json();
+    const { paymentMethod, voucherCode, shippingAddress, phoneNumber, notes, cartItems } = orderData;
 
+    console.log("cartItems", cartItems);
     // Get user's cart with items
     const cart = await db.cart.findUnique({
       where: { userId: session.user.id },
@@ -24,15 +35,15 @@ export async function POST(req: NextRequest) {
             product: true,
             size: true,
           },
+          where: {
+            id: { in: cartItems?.map((item) => item.cartId) || [] }
+          }
         },
       },
     });
 
     if (!cart || cart.items.length === 0) {
-      return NextResponse.json(
-        { error: "Cart is empty" },
-        { status: 400 }
-      );
+      throw new Error("Selected cart items not found");
     }
 
     // Calculate total amount
@@ -71,10 +82,13 @@ export async function POST(req: NextRequest) {
 
     // Clear the cart after successful order creation
     await db.cartItem.deleteMany({
-      where: { cartId: cart.id },
+      where: { id: { in: cartItems?.map((item) => item.cartId) || [] } },
     });
 
-    return NextResponse.json({
+    // Revalidate cart and orders pages
+    revalidatePath("/cart");
+
+    return {
       success: true,
       order: {
         id: order.id,
@@ -83,13 +97,21 @@ export async function POST(req: NextRequest) {
         createdAt: order.createdAt,
         orderItems: order.orderItems,
       },
-    });
+    };
 
   } catch (error) {
     console.error("Error creating order:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    throw new Error(error instanceof Error ? error.message : "Failed to create order");
   }
-} 
+}
+
+export async function createOrderAndRedirect(orderData: CreateOrderData = {}) {
+  try {
+    const result = await createOrder(orderData);
+    return result;
+  } catch (error) {
+    console.error("Error creating order:", error);
+    throw error;
+  }
+}
+

@@ -12,6 +12,15 @@ enum UserRole {
   USER
 }
 
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  SHIPPING
+  DELIVERED
+  CANCELLED
+}
+
 model User {
   id            String          @id @default(cuid())
   name          String?
@@ -23,6 +32,7 @@ model User {
   accounts      Account[]
   sessions      Session[]
   cart          Cart?
+  orders        Order[]
   // Optional for WebAuthn support
   Authenticator Authenticator[]
 
@@ -86,7 +96,7 @@ model Authenticator {
 }
 
 model Product {
-  id          String     @id @default(cuid())
+  id          String      @id @default(cuid())
   name        String
   brand       String
   mainImage   String
@@ -96,8 +106,9 @@ model Product {
   images      String[]
   sizes       Size[]
   cartItems   CartItem[]
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  orderItems  OrderItem[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
 }
 
 model Size {
@@ -133,4 +144,34 @@ model CartItem {
   updatedAt DateTime @updatedAt
 
   @@unique([cartId, productId, sizeId])
+}
+
+model Order {
+  id              String      @id @default(cuid())
+  userId          String
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orderItems      OrderItem[]
+  status          OrderStatus @default(PENDING)
+  totalAmount     Float
+  paymentMethod   String
+  voucherCode     String?
+  shippingAddress String?
+  phoneNumber     String?
+  notes           String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+}
+
+model OrderItem {
+  id        String   @id @default(cuid())
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id])
+  size      String
+  quantity  Int
+  price     Float
+  createdAt DateTime @default(now())
+
+  @@unique([orderId, productId, size])
 }

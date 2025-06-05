@@ -18,9 +18,8 @@ import {
   syncCartToDatabase,
   syncCartFromDatabase,
   getCartCount as getCartCountDB,
-  clearCart as clearCartDB,
 } from "@/actions/cart";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 // Define the type for our cart context
 type CartContextType = {
   cartCount: number;
@@ -38,6 +37,8 @@ type CartContextType = {
     newSizeStock: number
   ) => void;
   getCookieCartItems: () => Record<string, Record<string, number>>;
+  removeFromCookieCart: (productId: string, sizeId: string) => void;
+  isLoading: boolean;
 };
 
 // Create the context with default values
@@ -48,17 +49,21 @@ const CartContext = createContext<CartContextType>({
   changeItemQuantity: () => {},
   changeItemSize: () => {},
   getCookieCartItems: () => ({}),
+  removeFromCookieCart: () => {},
+  isLoading: true,
 });
 
 // Custom hook to use the cart context
 export const useCart = () => useContext(CartContext);
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
+  const router = useRouter();
   const [cartCount, setCartCount] = useState(0);
   const { data: session, status } = useSession();
   const [previousUserId, setPreviousUserId] = useState<string | null>(null); // check if the user has logged in or out
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const pathname = usePathname();
+  const [isLoading, setIsLoading] = useState(true);
   const calculateCartCount = (
     // calculate the total number of items in the cart in cookies
     items: Record<string, Record<string, number>>
@@ -103,6 +108,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const handleCartInitialization = async () => {
       if (status === "loading" || isLoggingIn || pathname === "/login") return;
+      setIsLoading(true);
       try {
         const currentUserId = session?.user?.id || null;
         const cookieItems = getCookieCartItems();
@@ -118,32 +124,35 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             console.log(
               "Cookie has data, clearing DB and syncing cookie to DB"
             );
-
+            setCartCount(calculateCartCount(cookieItems));
             // Clear database cart first, then sync cookie items
-            const clearResult = await clearCartDB(currentUserId);
-            console.log("Clear result:", clearResult);
+            // const clearResult = await clearCartDB(currentUserId);
+            // console.log("Clear result:", clearResult);
 
             const syncResult = await syncCartToDatabase(
               currentUserId,
               cookieItems
             );
             console.log("Sync result:", syncResult);
+            if (pathname === "/cart") {
+              router.refresh();
+            }
           } else {
             console.log("Cookie is empty, using existing DB data");
             const dbCartItems = await syncCartFromDatabase(currentUserId);
             console.log("dbCartItems", dbCartItems);
             setCookieCartItems(dbCartItems);
-          }
 
-          // Get updated count from database
-          const dbCount = await getCartCountDB(currentUserId);
-          console.log("dbCount", dbCount, "type:", typeof dbCount);
+            // Get updated count from database
+            const dbCount = await getCartCountDB(currentUserId);
+            console.log("dbCount", dbCount, "type:", typeof dbCount);
 
-          if (typeof dbCount === "number") {
-            setCartCount(dbCount);
-          } else {
-            console.error("Invalid cart count:", dbCount);
-            setCartCount(0);
+            if (typeof dbCount === "number") {
+              setCartCount(dbCount);
+            } else {
+              console.error("Invalid cart count:", dbCount);
+              setCartCount(0);
+            }
           }
         }
         // User is not logged in (refresh or initial load)
@@ -157,11 +166,20 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       } catch (error) {
         console.error("Error in cart initialization:", error);
         setCartCount(0);
+      } finally {
+        setIsLoading(false);
       }
     };
 
     handleCartInitialization();
-  }, [session?.user?.id, status, previousUserId, setCookieCartItems, isLoggingIn]);
+  }, [
+    session?.user?.id,
+    status,
+    previousUserId,
+    setCookieCartItems,
+    isLoggingIn,
+    setIsLoading,
+  ]);
 
   useEffect(() => {
     if (pathname === "/login" && status === "authenticated") {
@@ -216,6 +234,17 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       (cartItems[productId]?.[sizeId] || 0) + quantity;
     setCookieCartItems(cartItems);
   };
+  const removeFromCookieCart = (productId: string, sizeId: string) => {
+    const cartItems = getCookieCartItems();
+    if (cartItems && cartItems[productId] && cartItems[productId][sizeId]) {
+      delete cartItems[productId][sizeId];
+      // Remove the product entirely if no sizes remain
+      if (Object.keys(cartItems[productId]).length === 0) {
+        delete cartItems[productId];
+      }
+      setCookieCartItems(cartItems);
+    }
+  };
 
   const removeFromCart = async (productId: string, sizeId: string) => {
     const userId = session?.user?.id;
@@ -249,15 +278,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       }
     }
     // Update cookie cart items
-    const cartItems = getCookieCartItems();
-    if (cartItems && cartItems[productId] && cartItems[productId][sizeId]) {
-      delete cartItems[productId][sizeId];
-      // Remove the product entirely if no sizes remain
-      if (Object.keys(cartItems[productId]).length === 0) {
-        delete cartItems[productId];
-      }
-      setCookieCartItems(cartItems);
-    }
+    removeFromCookieCart(productId, sizeId);
   };
 
   const changeItemQuantity = async (
@@ -386,6 +407,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         changeItemQuantity,
         changeItemSize,
         getCookieCartItems,
+        removeFromCookieCart,
+        isLoading,
       }}
     >
       {children}
