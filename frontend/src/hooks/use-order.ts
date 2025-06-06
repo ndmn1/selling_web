@@ -3,16 +3,7 @@ import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { createOrderAndRedirect } from '@/actions/order';
 import { useCart } from '@/context/CartCountProvider';
-import { CartProduct } from '@/types/product';
-
-interface OrderData {
-  paymentMethod?: string;
-  voucherCode?: string;
-  shippingAddress?: string;
-  phoneNumber?: string;
-  notes?: string;
-  cartItems?: CartProduct[];
-}
+import { OrderData } from '@/types/order';
 
 export const useOrder = () => {
   const [isPending, startTransition] = useTransition();

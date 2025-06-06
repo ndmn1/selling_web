@@ -33,11 +33,27 @@ model User {
   sessions      Session[]
   cart          Cart?
   orders        Order[]
+  addresses     Address[]
   // Optional for WebAuthn support
   Authenticator Authenticator[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Address {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title       String // e.g., "Nhà riêng", "Công ty", etc.
+  phoneNumber String
+  address     String
+  ward        String?
+  district    String?
+  province    String
+  isDefault   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model Account {

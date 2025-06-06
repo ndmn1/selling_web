@@ -3,19 +3,10 @@
 import { db } from "@/lib/db";
 import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
+import { OrderData } from "@/types/order";
 
-import { CartProduct } from "@/types/product";
 
-interface CreateOrderData {
-  paymentMethod?: string;
-  voucherCode?: string;
-  shippingAddress?: string;
-  phoneNumber?: string;
-  notes?: string;
-  cartItems?: CartProduct[];
-}
-
-export async function createOrder(orderData: CreateOrderData = {}) {
+export async function createOrder(orderData: OrderData = {}) {
   try {
     const session = await auth();
     
@@ -105,13 +96,62 @@ export async function createOrder(orderData: CreateOrderData = {}) {
   }
 }
 
-export async function createOrderAndRedirect(orderData: CreateOrderData = {}) {
+export async function createOrderAndRedirect(orderData: OrderData = {}) {
   try {
     const result = await createOrder(orderData);
     return result;
   } catch (error) {
     console.error("Error creating order:", error);
     throw error;
+  }
+}
+
+export async function getUserOrders() {
+  try {
+    const session = await auth();
+    
+    if (!session?.user?.id) {
+      throw new Error("Unauthorized");
+    }
+
+    const orders = await db.order.findMany({
+      where: { userId: session.user.id },
+      include: {
+        orderItems: {
+          include: {
+            product: {
+              select: {
+                id: true,
+                name: true,
+                mainImage: true,
+                price: true,
+                discount: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    // Format orders for display
+    const formattedOrders = orders.map((order) => ({
+      id: order.id,
+      date: order.createdAt.toLocaleDateString("vi-VN"),
+      total: order.totalAmount,
+      status: order.status,
+      items: order.orderItems.map((item) => ({
+        name: item.product.name,
+        size: item.size,
+        price: item.price,
+        quantity: item.quantity,
+        image: item.product.mainImage,
+      })),
+    }));
+    return formattedOrders;
+  } catch (error) {
+    console.error("Error fetching user orders:", error);
+    throw new Error(error instanceof Error ? error.message : "Failed to fetch orders");
   }
 }
 
