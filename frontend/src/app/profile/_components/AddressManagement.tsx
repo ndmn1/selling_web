@@ -3,17 +3,7 @@
 import { useState, useEffect } from "react";
 import { getUserAddresses, deleteAddress } from "@/actions/user";
 import AddressModal from "./AddressModal";
-
-interface Address {
-  id: string;
-  title: string;
-  phoneNumber: string;
-  address: string;
-  ward?: string | null;
-  district?: string | null;
-  province: string;
-  isDefault: boolean;
-}
+import { Address } from "@/types/user";
 
 export default function AddressManagement() {
   const [addresses, setAddresses] = useState<Address[]>([]);

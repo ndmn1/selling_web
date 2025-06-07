@@ -201,16 +201,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       // User is logged in - use database
       try {
         const result = await addToCartDB(userId, productId, sizeId, quantity);
-        console.log("Add to cart result:", result);
 
         if (result && result.success) {
           const newCount = await getCartCountDB(userId);
-          console.log(
-            "New cart count after add:",
-            newCount,
-            "type:",
-            typeof newCount
-          );
 
           if (typeof newCount === "number") {
             setCartCount(newCount);
@@ -297,16 +290,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           sizeId,
           quantity
         );
-        console.log("Update quantity result:", result);
 
         if (result && result.success) {
           const newCount = await getCartCountDB(userId);
-          console.log(
-            "New cart count after quantity change:",
-            newCount,
-            "type:",
-            typeof newCount
-          );
 
           if (typeof newCount === "number") {
             setCartCount(newCount);

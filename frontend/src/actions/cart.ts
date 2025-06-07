@@ -307,18 +307,15 @@ export async function syncCartFromDatabase(userId: string): Promise<CartItems> {
 // Get cart total count (for logged-in users)
 export async function getCartCount(userId: string) {
   try {
-    console.log("Getting cart count for user:", userId);
     const cart = await prisma.cart.findUnique({
       where: { userId },
       include: {
         items: true
       }
     })
-    console.log("Cart found:", cart ? "Yes" : "No");
     if (!cart) return 0
     
     const totalCount = cart.items.reduce((total: number, item) => total + item.quantity, 0)
-    console.log("Total cart count:", totalCount);
     return totalCount
   } catch (error) {
     console.error("Error getting cart count:", error)

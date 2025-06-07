@@ -61,7 +61,6 @@ function CartItemsClient({
       } else {
         // Fallback: use cookie cart items if server didn't provide any
         const cookieCartItems = getCookieCartItems();
-        console.log("cookieCartItems", cookieCartItems);
         const flattenedItems: CartProduct[] = [];
 
         // Convert the nested structure to a flat array for display
@@ -112,7 +111,6 @@ function CartItemsClient({
   };
 
   const handleChooseItem = (cartId: string, checked: boolean) => {
-    console.log(cartItems);
     if (checked) {
       setChooseItems([...chooseItems, cartId]);
     } else {
@@ -251,7 +249,6 @@ function CartItemsClient({
     setIsChanging(false);
   };
 
-  console.log("cartItems", cartItems);
   return (
     isLoading || isChanging ? (
       <div className="flex justify-center items-center h-screen">

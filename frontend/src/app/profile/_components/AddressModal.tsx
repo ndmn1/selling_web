@@ -2,17 +2,14 @@
 
 import { useState, useTransition, useEffect } from "react";
 import { createAddress, updateAddress } from "@/actions/user";
-
-interface Address {
-  id: string;
-  title: string;
-  phoneNumber: string;
-  address: string;
-  ward?: string | null;
-  district?: string | null;
-  province: string;
-  isDefault: boolean;
-}
+import { Address } from "@/types/user";
+import {
+  getProvinces,
+  getDistrictsByProvinceId,
+  getWardsByDistrictId,
+} from "@/actions/location";
+import { Province, District, Ward } from "@/types/location";
+import SearchableSelect, { SelectOption } from "@/components/SearchableSelect";
 
 interface AddressModalProps {
   isOpen: boolean;
@@ -42,6 +39,137 @@ export default function AddressModal({
     text: string;
   } | null>(null);
 
+  // Location data states
+  const [provinces, setProvinces] = useState<Province[]>([]);
+  const [districts, setDistricts] = useState<District[]>([]);
+  const [wards, setWards] = useState<Ward[]>([]);
+  const [isLoadingProvinces, setIsLoadingProvinces] = useState(true);
+  const [isLoadingDistricts, setIsLoadingDistricts] = useState(false);
+  const [isLoadingWards, setIsLoadingWards] = useState(false);
+
+  // Selected IDs for API calls
+  const [selectedProvinceId, setSelectedProvinceId] = useState<number | null>(
+    null
+  );
+  const [selectedDistrictId, setSelectedDistrictId] = useState<number | null>(
+    null
+  );
+  const [selectedWardId, setSelectedWardId] = useState<number | null>(null);
+
+  // Convert location data to SelectOption format
+  const provinceOptions: SelectOption[] = provinces.map((province) => ({
+    value: province.code.toString(),
+    label: province.name,
+  }));
+
+  const districtOptions: SelectOption[] = districts.map((district) => ({
+    value: district.code.toString(),
+    label: district.name,
+  }));
+
+  const wardOptions: SelectOption[] = wards.map((ward) => ({
+    value: ward.code.toString(),
+    label: ward.name,
+  }));
+
+  // Fetch provinces when modal opens
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const fetchProvinces = async () => {
+      try {
+        const provincesData = await getProvinces();
+        setProvinces(provincesData);
+
+        // If editing an address, set up the location hierarchy
+        if (address?.province) {
+          const province = provincesData.find(
+            (p) => p.name === address.province
+          );
+          if (province) {
+            setSelectedProvinceId(province.code);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching provinces:", error);
+      } finally {
+        setIsLoadingProvinces(false);
+      }
+    };
+
+    fetchProvinces();
+  }, [isOpen, address?.province, address?.district, address?.ward]);
+
+  // Fetch districts when province changes
+  useEffect(() => {
+    const fetchDistricts = async () => {
+      if (!selectedProvinceId) {
+        setDistricts([]);
+        setWards([]);
+        return;
+      }
+
+      setIsLoadingDistricts(true);
+      try {
+        const districtsData = await getDistrictsByProvinceId(
+          selectedProvinceId
+        );
+        setDistricts(districtsData);
+
+        // If editing an address, try to find the district ID
+        if (address?.district) {
+          const district = districtsData.find(
+            (d) => d.name === address.district
+          );
+          if (district) {
+            setSelectedDistrictId(district.code);
+          }
+        } else {
+          setWards([]);
+          setSelectedDistrictId(null);
+        }
+      } catch (error) {
+        console.error("Error fetching districts:", error);
+        setDistricts([]);
+      } finally {
+        setIsLoadingDistricts(false);
+      }
+    };
+
+    fetchDistricts();
+  }, [selectedProvinceId, address?.district]);
+
+  // Fetch wards when district changes
+  useEffect(() => {
+    const fetchWards = async () => {
+      if (!selectedDistrictId) {
+        setWards([]);
+        return;
+      }
+
+      setIsLoadingWards(true);
+      try {
+        const wardsData = await getWardsByDistrictId(selectedDistrictId);
+        setWards(wardsData);
+        if (address?.ward) {
+          const ward = wardsData.find((w) => w.name === address.ward);
+          if (ward) {
+            setSelectedWardId(ward.code);
+          }
+        } else {
+          setSelectedWardId(null);
+        }
+      } catch (error) {
+        console.error("Error fetching wards:", error);
+        setWards([]);
+      } finally {
+        setIsLoadingWards(false);
+      }
+    };
+
+    fetchWards();
+  }, [selectedDistrictId, address?.ward]);
+
   useEffect(() => {
     if (address) {
       setFormData({
@@ -63,9 +191,72 @@ export default function AddressModal({
         province: "",
         isDefault: false,
       });
+      setSelectedProvinceId(null);
+      setSelectedDistrictId(null);
+      setSelectedWardId(null);
     }
     setMessage(null);
   }, [address, isOpen]);
+
+  const handleProvinceChange = (provinceCode: string) => {
+    const province = provinces.find((p) => p.code.toString() === provinceCode);
+    if (province) {
+      setSelectedProvinceId(province.code);
+      setFormData((prev) => ({
+        ...prev,
+        province: province.name,
+        district: "", // Clear district when province changes
+        ward: "", // Clear ward when province changes
+      }));
+    } else {
+      setSelectedProvinceId(null);
+      setFormData((prev) => ({
+        ...prev,
+        province: "",
+        district: "",
+        ward: "",
+      }));
+    }
+    setSelectedDistrictId(null);
+    setSelectedWardId(null);
+  };
+
+  const handleDistrictChange = (districtCode: string) => {
+    const district = districts.find((d) => d.code.toString() === districtCode);
+    if (district) {
+      setSelectedDistrictId(district.code);
+      setFormData((prev) => ({
+        ...prev,
+        district: district.name,
+        ward: "", // Clear ward when district changes
+      }));
+    } else {
+      setSelectedDistrictId(null);
+      setFormData((prev) => ({
+        ...prev,
+        district: "",
+        ward: "",
+      }));
+    }
+    setSelectedWardId(null);
+  };
+
+  const handleWardChange = (wardCode: string) => {
+    const ward = wards.find((w) => w.code.toString() === wardCode);
+    if (ward) {
+      setSelectedWardId(ward.code);
+      setFormData((prev) => ({
+        ...prev,
+        ward: ward.name,
+      }));
+    } else {
+      setSelectedWardId(null);
+      setFormData((prev) => ({
+        ...prev,
+        ward: "",
+      }));
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -190,46 +381,71 @@ export default function AddressModal({
                 required
               />
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Phường/Xã
-              </label>
-              <input
-                type="text"
-                value={formData.ward}
-                onChange={(e) =>
-                  setFormData({ ...formData, ward: e.target.value })
-                }
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Quận/Huyện
-              </label>
-              <input
-                type="text"
-                value={formData.district}
-                onChange={(e) =>
-                  setFormData({ ...formData, district: e.target.value })
-                }
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-              />
-            </div>
+
+            {/* Province Dropdown */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Tỉnh/Thành phố *
               </label>
-              <input
-                type="text"
-                value={formData.province}
-                onChange={(e) =>
-                  setFormData({ ...formData, province: e.target.value })
+              <SearchableSelect
+                options={provinceOptions}
+                value={selectedProvinceId?.toString() || ""}
+                onChange={handleProvinceChange}
+                placeholder={
+                  isLoadingProvinces
+                    ? "Đang tải..."
+                    : "Tìm và chọn Tỉnh/Thành phố"
                 }
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                required
+                disabled={isLoadingProvinces}
+                isLoading={isLoadingProvinces}
+                className="focus:ring-orange-500"
               />
             </div>
+
+            {/* District Dropdown */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Quận/Huyện
+              </label>
+              <SearchableSelect
+                options={districtOptions}
+                value={selectedDistrictId?.toString() || ""}
+                onChange={handleDistrictChange}
+                placeholder={
+                  !selectedProvinceId
+                    ? "Chọn tỉnh/thành phố trước"
+                    : isLoadingDistricts
+                    ? "Đang tải..."
+                    : "Tìm và chọn Quận/Huyện"
+                }
+                disabled={!selectedProvinceId || isLoadingDistricts}
+                isLoading={isLoadingDistricts}
+                className="focus:ring-orange-500"
+              />
+            </div>
+
+            {/* Ward Dropdown */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Phường/Xã
+              </label>
+              <SearchableSelect
+                options={wardOptions}
+                value={selectedWardId?.toString() || ""}
+                onChange={handleWardChange}
+                placeholder={
+                  !selectedDistrictId
+                    ? "Chọn quận/huyện trước"
+                    : isLoadingWards
+                    ? "Đang tải..."
+                    : "Tìm và chọn Phường/Xã"
+                }
+                disabled={!selectedDistrictId || isLoadingWards}
+                isLoading={isLoadingWards}
+                className="focus:ring-orange-500"
+              />
+            </div>
+
             <div className="flex items-center">
               <input
                 type="checkbox"

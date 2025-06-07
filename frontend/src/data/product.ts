@@ -76,7 +76,6 @@ export async function getCartProducts(userId: string): Promise<CartProduct[]> {
   })
 
   if (!cart) return []
-  console.log(cart);
 
   const cartItems = cart.items.map((item) => ({
     cartId: item.id,
@@ -95,7 +94,6 @@ export async function getCartProducts(userId: string): Promise<CartProduct[]> {
       stock: size.stock,
     })),
   }))
-  console.log("cartItems", cartItems);
   return cartItems;
 }
 
