@@ -245,12 +245,14 @@ export async function syncCartToDatabase(userId: string, cookieCart: CartItems) 
             item.productId === productId && item.sizeId === sizeId
           )
 
-          if (existingItem && existingItem.quantity !== quantity) {
+          if (existingItem) {
+            if(existingItem.quantity !== quantity){
             // Update quantity (add cookie quantity to existing)
-            await prisma.cartItem.update({
-              where: { id: existingItem.id },
-              data: { quantity: quantity }
-            })
+              await prisma.cartItem.update({
+                where: { id: existingItem.id },
+                data: { quantity: quantity }
+              })
+            }
           } else {
             // Create new cart item
             await prisma.cartItem.create({
@@ -266,8 +268,31 @@ export async function syncCartToDatabase(userId: string, cookieCart: CartItems) 
       }
     }
 
+    // Get the updated cart from database to return as cookie data
+    const updatedCart = await prisma.cart.findUnique({
+      where: { userId },
+      include: {
+        items: true
+      }
+    })
+
+    // Convert database cart back to cookie format
+    const updatedCookieCart: CartItems = {}
+    if (updatedCart) {
+      updatedCart.items.forEach(item => {
+        if (!updatedCookieCart[item.productId]) {
+          updatedCookieCart[item.productId] = {}
+        }
+        updatedCookieCart[item.productId][item.sizeId] = item.quantity
+      })
+    }
+
    // revalidatePath("/cart")
-    return { success: true, message: "Cart synced to database" }
+    return { 
+      success: true, 
+      message: "Cart synced to database",
+      cookieCart: updatedCookieCart
+    }
   } catch (error) {
     console.error("Error syncing cart to database:", error)
     return { success: false, message: "Failed to sync cart" }
@@ -322,6 +347,7 @@ export async function getCartCount(userId: string) {
     return 0
   }
 }
+
 
 // Get cart total price
 export async function getCartTotal() {

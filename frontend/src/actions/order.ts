@@ -4,6 +4,8 @@ import { db } from "@/lib/db";
 import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
 import { OrderData } from "@/types/order";
+import { OrderStatus } from "@prisma/client";
+import { PAYMENT_METHOD } from "@/constant";
 
 
 export async function createOrder(orderData: OrderData = {}) {
@@ -14,7 +16,7 @@ export async function createOrder(orderData: OrderData = {}) {
       throw new Error("Unauthorized");
     }
 
-    const { paymentMethod, voucherCode, shippingAddress, phoneNumber, notes, cartItems } = orderData;
+    const { paymentMethod, voucherCode, shippingAddress, phoneNumber, notes, cartItems, status } = orderData;
 
     console.log("cartItems", cartItems);
     // Get user's cart with items
@@ -48,7 +50,8 @@ export async function createOrder(orderData: OrderData = {}) {
       data: {
         userId: session.user.id,
         totalAmount,
-        paymentMethod: paymentMethod || "COD",
+        status: status || OrderStatus.PENDING,
+        paymentMethod: paymentMethod || PAYMENT_METHOD.cod,
         voucherCode,
         shippingAddress,
         phoneNumber,

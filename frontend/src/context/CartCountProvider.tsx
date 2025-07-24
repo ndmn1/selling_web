@@ -134,6 +134,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
               cookieItems
             );
             console.log("Sync result:", syncResult);
+
+            // Update cookies with the synced data from database
+            if (syncResult.success && syncResult.cookieCart) {
+              setCookieCartItems(syncResult.cookieCart);
+            }
+
             if (pathname === "/cart") {
               router.refresh();
             }

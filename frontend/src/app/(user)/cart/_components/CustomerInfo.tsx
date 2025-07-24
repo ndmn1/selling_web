@@ -14,6 +14,7 @@ import {
 } from "@/actions/location";
 import { Province, District, Ward } from "@/types/location";
 import SearchableSelect, { SelectOption } from "@/components/SearchableSelect";
+import { useSession } from "next-auth/react";
 
 function CustomerInfo() {
   const {
@@ -22,7 +23,7 @@ function CustomerInfo() {
     validationErrors,
     clearValidationError,
   } = useCartSummary();
-
+  const { status } = useSession();
   const [savedAddresses, setSavedAddresses] = useState<Address[]>([]);
   const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
   const [isLoadingAddresses, setIsLoadingAddresses] = useState(true);
@@ -91,9 +92,11 @@ function CustomerInfo() {
           handleAddressSelection(defaultAddress.id, addresses);
         }
       } catch (error) {
-        console.error("Error fetching addresses:", error);
-        // Don't show error for unauthorized users (guests)
-        // just keep savedAddresses as empty array
+        if(status === "unauthenticated") {
+          setSavedAddresses([]);
+        } else {
+          console.error("Error fetching addresses:", error);
+        }
       } finally {
         setIsLoadingAddresses(false);
       }

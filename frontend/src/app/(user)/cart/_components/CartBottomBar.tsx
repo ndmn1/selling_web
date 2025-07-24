@@ -6,6 +6,7 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import { useOrder } from "@/hooks/use-order";
 import { orderSchema } from "@/schemas/order";
+import { useCart } from "@/context/CartCountProvider";
 
 function CartBottomBar() {
   const {
@@ -15,10 +16,10 @@ function CartBottomBar() {
     selectedCartItems,
     setValidationErrors,
   } = useCartSummary();
-  const { status } = useSession();
+  const { data: session, status } = useSession();
   const router = useRouter();
   const { createOrder, loading, error } = useOrder();
-
+  const { removeFromCookieCart } = useCart();
   const validateOrderData = () => {
     const orderData = {
       customerInfo,
@@ -52,15 +53,74 @@ function CartBottomBar() {
         return; // Stop if validation fails
       }
 
-      // Create order with validated data
-      await createOrder({
-        paymentMethod: customerInfo.paymentMethod,
-        voucherCode: vocherCode || undefined,
-        shippingAddress: `${customerInfo.address}, ${customerInfo.ward}, ${customerInfo.district}, ${customerInfo.province}`,
-        phoneNumber: customerInfo.phone,
-        notes: customerInfo.note,
-        cartItems: selectedCartItems,
-      });
+      // Handle VNPay payment for bank_transfer
+      if (customerInfo.paymentMethod === "bank_transfer") {
+        try {
+          // Generate a unique order ID
+          const orderId = `ORDER_${Date.now()}_${Math.random()
+            .toString(36)
+            .substr(2, 9)}`;
+
+          // Create payment URL via VNPay
+          const response = await fetch("/api/vnpay/create-payment", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              amount: total,
+              orderInfo: `Thanh toan don hang ${orderId}`,
+              orderId: orderId,
+            }),
+          });
+
+          const data = await response.json();
+
+          if (data.paymentUrl) {
+            // Store order data in cookies before redirecting to VNPay
+            const pendingOrderData = {
+              orderId,
+              userId: session?.user?.id,
+              paymentMethod: customerInfo.paymentMethod,
+              voucherCode: vocherCode || undefined,
+              shippingAddress: `${customerInfo.address}, ${customerInfo.ward}, ${customerInfo.district}, ${customerInfo.province}`,
+              phoneNumber: customerInfo.phone,
+              notes: customerInfo.note,
+              cartItems: selectedCartItems,
+              total,
+            };
+            if (pendingOrderData.cartItems) {
+              pendingOrderData.cartItems.forEach((cartItem) => {
+                const sizeId = cartItem.sizes.find(s => s.size === cartItem.selectedSize)?.id;
+                if (sizeId) {
+                  removeFromCookieCart(cartItem.id, sizeId);
+                }
+              });
+            }
+            const jsonString = JSON.stringify(pendingOrderData);
+            const encodedData = Buffer.from(jsonString, 'utf8').toString('base64');
+            document.cookie = `pendingOrder=${encodedData}; path=/; max-age=3600; SameSite=Lax`;
+
+            // Redirect to VNPay payment page
+            window.location.href = data.paymentUrl;
+          } else {
+            throw new Error("Failed to create payment URL");
+          }
+        } catch (error) {
+          console.error("Error creating VNPay payment:", error);
+          alert("Có lỗi xảy ra khi tạo thanh toán. Vui lòng thử lại.");
+        }
+      } else {
+        // Handle COD payment - create order directly
+        await createOrder({
+          paymentMethod: customerInfo.paymentMethod,
+          voucherCode: vocherCode || undefined,
+          shippingAddress: `${customerInfo.address}, ${customerInfo.ward}, ${customerInfo.district}, ${customerInfo.province}`,
+          phoneNumber: customerInfo.phone,
+          notes: customerInfo.note,
+          cartItems: selectedCartItems,
+        });
+      }
     } else {
       const callbackUrl = encodeURIComponent(window.location.href);
       router.push(`/login?callbackUrl=${callbackUrl}`);

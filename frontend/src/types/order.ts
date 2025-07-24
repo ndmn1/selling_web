@@ -9,6 +9,7 @@ export interface OrderData {
   phoneNumber?: string;
   notes?: string;
   cartItems?: CartProduct[];
+  status?: OrderStatus;
 }
 
 //profile
