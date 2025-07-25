@@ -12,6 +12,7 @@ import { useCart } from "@/context/CartCountProvider";
 import { MdOutlineAccountCircle } from "react-icons/md";
 import { useSession, signOut } from "next-auth/react";
 import { useCurrentUser } from "@/hooks/use-current-user";
+import { useRouter } from "next/navigation";
 
 interface NavLinkProps {
   path: string;
@@ -47,7 +48,7 @@ const Navbar = () => {
   const [isSearch, setIsSearch] = useState(false);
   const [dropDownToggle, setDropDownToggle] = useState(false);
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
-
+  const router = useRouter();
   const navRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const lastScrollY = useRef(0);
@@ -91,6 +92,10 @@ const Navbar = () => {
   const closeAllMenus = () => {
     setIsOpen(false);
     setDropDownToggle(false);
+  };
+
+  const handleSearch = (searchTerm: string) => {
+    router.push(`/all?search=${searchTerm}`);
   };
 
   return (
@@ -163,7 +168,7 @@ const Navbar = () => {
           </div>
           <div className="flex flex-row gap-4 items-center xl:mr-10 mx-3">
             <div className="hidden lg:block">
-              <Search />
+              <Search handleSearch={handleSearch} />
             </div>
             <div className="relative group">
               {data?.user ? (
@@ -208,7 +213,7 @@ const Navbar = () => {
         {/* Mobile Search Bar (conditionally rendered) */}
         {isSearch && (
           <div className="pb-4 lg:hidden mx-3">
-            <Search />
+            <Search handleSearch={handleSearch} />
           </div>
         )}
         {/* Mobile sidebar overlay */}

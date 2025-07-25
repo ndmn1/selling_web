@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
 
-import { PrismaClient } from '@prisma/client'
+import { Brand, PrismaClient } from '@prisma/client'
 import { hash } from 'bcrypt'
 
 const prisma = new PrismaClient()
@@ -33,11 +33,54 @@ async function main() {
     },
   })
 
-  // Create sample products
+  // Create brands first
+  const brands = [
+    {
+      name: 'Nike',
+      logo: 'https://example.com/nike-logo.png',
+      description: 'Just Do It. Leading athletic footwear and apparel brand.',
+    },
+    {
+      name: 'Adidas',
+      logo: 'https://example.com/adidas-logo.png',
+      description: 'Impossible is Nothing. Global sportswear manufacturer.',
+    },
+    {
+      name: 'New Balance',
+      logo: 'https://example.com/new-balance-logo.png',
+      description: 'Fearlessly Independent since 1906.',
+    },
+    {
+      name: 'Puma',
+      logo: 'https://example.com/puma-logo.png',
+      description: 'Forever Faster. German multinational corporation.',
+    },
+    {
+      name: 'Champion',
+      logo: 'https://example.com/champion-logo.png',
+      description: 'Authentic athletic apparel since 1919.',
+    },
+  ]
+
+  // Create brands in database
+  // Note: Using 'any' type temporarily until Prisma client is regenerated
+  const createdBrands = await Promise.all(
+    brands.map(async (brandData) => {
+      return await (prisma).brand.upsert({
+        where: { name: brandData.name },
+        update: {},
+        create: brandData,
+      })
+    })
+  )
+
+  console.log('Created brands:', createdBrands.map((b: Brand) => b.name))
+
+  // Create sample products with brand references
   const products = [
     {
       name: 'Nike Air Max 270',
-      brand: 'Nike',
+      brandName: 'Nike',
       mainImage: 'https://example.com/nike-air-max-270.jpg',
       price: 150.00,
       discount: 20,
@@ -55,7 +98,7 @@ async function main() {
     },
     {
       name: 'Adidas Ultraboost 22',
-      brand: 'Adidas',
+      brandName: 'Adidas',
       mainImage: 'https://example.com/adidas-ultraboost-22.jpg',
       price: 180.00,
       discount: 20,
@@ -73,7 +116,7 @@ async function main() {
     },
     {
       name: 'New Balance 574',
-      brand: 'New Balance',
+      brandName: 'New Balance',
       mainImage: 'https://example.com/new-balance-574.jpg',
       price: 100.00,
       discount: 20,
@@ -92,10 +135,18 @@ async function main() {
   ]
 
   for (const productData of products) {
-    const { sizes, ...productInfo } = productData
-    const product = await prisma.product.create({
+    const { sizes, brandName, ...productInfo } = productData
+    const brand = createdBrands.find(b => b.name === brandName)
+    
+    if (!brand) {
+      console.log(`Brand not found for product: ${productData.name}`)
+      continue
+    }
+
+    const product = await (prisma).product.create({
       data: {
         ...productInfo,
+        brandId: brand.id,
         sizes: {
           create: sizes,
         },

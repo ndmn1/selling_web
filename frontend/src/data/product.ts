@@ -1,26 +1,110 @@
 import { db } from "@/lib/db"
 import type { CartProduct, DetailedProduct, Product } from "@/types/product"
-
+import type { SearchParams } from "@/app/(user)/all/page"
+import { Brand } from "@prisma/client";
 // Server-side functions to get products
-export async function getProducts(page: number = 1, limit: number = 1): Promise<{ products: Product[], total: number }> {
+export async function getProducts(searchParams: SearchParams): Promise<{ products: Product[], total: number }> {
+  const params = await searchParams;
+  
+  // Extract search parameters
+  const page = Number(params.page) || 1;
+  const limit = Number(params.limit) || 12;
+  const search = params.search as string;
+  const brandName = params.brand as string | string[];
+  const size = params.size as string | string[];
+  const from = params.from as string;
+  const to = params.to as string;
+  const sort = params.sort as string;
+  const order = params.order as string;
+  
   const skip = (page - 1) * limit;
   
-  const [products, total] = await Promise.all([
-    db.product.findMany({
-      include: {
-        sizes: true,
-      },
-      skip,
-      take: limit,
-    }),
-    db.product.count()
-  ]);
+  // Build where conditions
+  const whereConditions: Record<string, unknown> = {};
+  
+  // Search by name
+  if (search) {
+    whereConditions.name = {
+      contains: search,
+      mode: 'insensitive' as const
+    };
+  }
+  // Filter by brand
+  if (brandName) {
+    const brands = Array.isArray(brandName) ? brandName : [brandName];
+    whereConditions.brand = {
+      name: {
+        in: brands,
+        mode: 'insensitive' as const
+      }
+    };
+  }
+  // Filter by price range
+  if (from || to) {
+    whereConditions.price = {};
+    if (from) {
+      (whereConditions.price as Record<string, number>).gte = Number(from);
+    }
+    if (to) {
+      (whereConditions.price as Record<string, number>).lte = Number(to);
+    }
+  }
+  // Build orderBy
+  let orderBy: Record<string, string> = { createdAt: 'desc' };
+  if (sort && order) {
+    orderBy = { [sort]: order };
+  }
 
-  return {
+
+  if (size) {
+    // If size filter is applied, use database pagination with size filtering
+    const sizes = Array.isArray(size) ? size : [size];
+    
+    // Get paginated products that have the specified sizes with stock > 0
+    const [products, total] = await Promise.all([
+      db.product.findMany({
+        where: {
+          ...whereConditions,
+          sizes: {
+            some: {
+              size: {
+                in: sizes
+              },
+              stock: {
+                gt: 0
+              }
+            }
+          }
+        },
+        include: {
+          sizes: true,
+          brand: true,
+        },
+        skip,
+        take: limit,
+        orderBy,
+      }),
+      db.product.count({
+        where: {
+          ...whereConditions,
+          sizes: {
+            some: {
+              size: {
+                in: sizes
+              },
+              stock: {
+                gt: 0
+              }
+            }
+          }
+        },
+      }),
+    ]);
+     return {
     products: products.map((product) => ({
       id: product.id,
       name: product.name,
-      brand: product.brand,
+      brand: product.brand.name,
       mainImage: product.mainImage,
       price: product.price,
       salePrice: product.price * (1 - product.discount / 100),
@@ -28,6 +112,43 @@ export async function getProducts(page: number = 1, limit: number = 1): Promise<
     })),
     total
   };
+  } else {
+    // No size filter - use regular query
+    const [products, total] = await Promise.all([
+      db.product.findMany({
+        where: whereConditions,
+        include: {
+          sizes: true,
+          brand: true,
+        },
+        skip,
+        take: limit,
+        orderBy,
+      }),
+      db.product.count({
+        where: whereConditions,
+      }),
+    ]);
+     return {
+    products: products.map((product) => ({
+      id: product.id,
+      name: product.name,
+      brand: product.brand.name,
+      mainImage: product.mainImage,
+      price: product.price,
+      salePrice: product.price * (1 - product.discount / 100),
+      discount: product.discount,
+    })),
+    total
+  };
+  }
+
+ 
+}
+
+export async function getBrands(): Promise<Brand[]> {
+  const brands = await db.brand.findMany();
+  return brands;
 }
 
 export async function getProductById(id: string): Promise<DetailedProduct | null> {
@@ -35,6 +156,7 @@ export async function getProductById(id: string): Promise<DetailedProduct | null
     where: { id },
     include: {
       sizes: true,
+      brand: true,
     },
   })
 
@@ -43,7 +165,7 @@ export async function getProductById(id: string): Promise<DetailedProduct | null
   return {
     id: product.id,
     name: product.name,
-    brand: product.brand,
+    brand: product.brand.name,
     mainImage: product.mainImage,
     images: product.images,
     price: product.price,
@@ -67,6 +189,7 @@ export async function getCartProducts(userId: string): Promise<CartProduct[]> {
           product: {
             include: {
               sizes: true,
+              brand: true,
             },
           },
           size: true,
@@ -81,7 +204,7 @@ export async function getCartProducts(userId: string): Promise<CartProduct[]> {
     cartId: item.id,
     id: item.product.id,
     name: item.product.name,
-    brand: item.product.brand,
+    brand: item.product.brand.name,
     mainImage: item.product.mainImage,
     price: item.product.price,
     salePrice: item.product.price * (1 - item.product.discount / 100),
