@@ -4,9 +4,9 @@ import Pagination from "@/components/Pagination";
 import { Suspense } from "react";
 import Loading from "./loading";
 
-export type SearchParams = Promise<{
+export type SearchParams = {
   [key: string]: string | string[] | undefined;
-}>;
+};
 export default async function ProductsPage(props: {
   searchParams: SearchParams;
 }) {
@@ -15,10 +15,10 @@ export default async function ProductsPage(props: {
   const itemPerPage = 1; // Show 12 items per page
 
   // Create a new searchParams object with the limit
-  const promiseSearchParams = Promise.resolve({
+  const fullSearchParams = {
     ...searchParams,
     limit: itemPerPage.toString(),
-  });
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -34,9 +34,9 @@ export default async function ProductsPage(props: {
               </h1>
             </div>
             <Suspense key={JSON.stringify(searchParams)} fallback={<Loading />}>
-              <ProductGrid searchParams={promiseSearchParams} />
+              <ProductGrid searchParams={fullSearchParams} />
               <Pagination
-                searchParams={promiseSearchParams}
+                searchParams={fullSearchParams}
                 itemPerPage={itemPerPage}
                 curPage={curPage}
               />

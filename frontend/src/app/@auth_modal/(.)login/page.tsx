@@ -1,4 +1,4 @@
-import { Modal } from "@/components/Modal";
+import { Modal } from "@/components/ModalAuth";
 import LoginForm from "@/app/(auth)/login/_components/LoginForm";
 
 export default function LoginModal() {

@@ -1,7 +1,6 @@
 import ProductInfo from "@/app/(user)/product/[id]/_components/ProductInfo";
 import RelatedProducts from "@/app/(user)/product/[id]/_components/RelatedProducts";
 import { getProductById, getProducts } from "@/data/product";
-import { Suspense } from "react";
 import { notFound } from "next/navigation";
 
 export default async function ProductPage({
@@ -13,13 +12,9 @@ export default async function ProductPage({
 
   return (
     <div className="bg-white py-10 mx-auto container">
-      <Suspense fallback={<div>Loading...</div>}>
-        <ProductInfoWrapper productId={id} />
-      </Suspense>
+      <ProductInfoWrapper productId={id} />
 
-      <Suspense fallback={<div>Loading related products...</div>}>
-        <RelatedProductsWrapper />
-      </Suspense>
+      <RelatedProductsWrapper />
     </div>
   );
 }
@@ -37,7 +32,8 @@ async function ProductInfoWrapper({ productId }: { productId: string }) {
 
 // Server component wrapper for RelatedProducts
 async function RelatedProductsWrapper() {
-  const { products } = await getProducts(1, 5); // Get first 5 products
+  const searchParams = { page: "1", limit: "5" };
+  const { products } = await getProducts(searchParams);
 
   return <RelatedProducts products={products} />;
 }
