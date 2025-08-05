@@ -168,7 +168,10 @@ const Navbar = () => {
           </div>
           <div className="flex flex-row gap-4 items-center xl:mr-10 mx-3">
             <div className="hidden lg:block">
-              <Search handleSearch={handleSearch} />
+              <Search
+                onSearch={handleSearch}
+                placeholder="Tìm kiếm sản phẩm..."
+              />
             </div>
             <div className="relative group">
               {data?.user ? (
@@ -213,7 +216,10 @@ const Navbar = () => {
         {/* Mobile Search Bar (conditionally rendered) */}
         {isSearch && (
           <div className="pb-4 lg:hidden mx-3">
-            <Search handleSearch={handleSearch} />
+            <Search
+              onSearch={handleSearch}
+              placeholder="Tìm kiếm sản phẩm..."
+            />
           </div>
         )}
         {/* Mobile sidebar overlay */}

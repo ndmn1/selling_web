@@ -33,6 +33,7 @@ export default function SearchableSelect({
 }: SearchableSelectProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [newSelectedValue, setNewSelectedValue] = useState<string | null>(null);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -88,7 +89,7 @@ export default function SearchableSelect({
         case "Enter":
           event.preventDefault();
           if (highlightedIndex >= 0 && filteredOptions[highlightedIndex]) {
-            handleOptionSelect(filteredOptions[highlightedIndex].value);
+            handleOptionSelect(filteredOptions[highlightedIndex]);
           }
           break;
         case "Escape":
@@ -139,8 +140,9 @@ export default function SearchableSelect({
     onSearch?.(newSearchTerm);
   };
 
-  const handleOptionSelect = (optionValue: string) => {
-    onChange(optionValue);
+  const handleOptionSelect = (option: SelectOption) => {
+    onChange(option.value);
+    setNewSelectedValue(option.label);
     setIsOpen(false);
     setSearchTerm("");
     setHighlightedIndex(-1);
@@ -152,7 +154,7 @@ export default function SearchableSelect({
         <input
           ref={inputRef}
           type="text"
-          value={isOpen ? searchTerm : displayValue}
+          value={isOpen ? searchTerm : newSelectedValue ||displayValue}
           onChange={handleInputChange}
           placeholder={isLoading ? "Đang tải..." : placeholder}
           disabled={disabled || isLoading}
@@ -192,7 +194,7 @@ export default function SearchableSelect({
                     ? "bg-blue-100 text-blue-900"
                     : "hover:bg-gray-100"
                 } ${option.value === value ? "bg-blue-50 font-medium" : ""}`}
-                onClick={() => handleOptionSelect(option.value)}
+                onClick={() => handleOptionSelect(option)}
                 onMouseEnter={() => setHighlightedIndex(index)}
               >
                 {option.label}

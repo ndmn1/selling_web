@@ -8,7 +8,7 @@ export async function getProducts(searchParams: SearchParams): Promise<{ product
   
   // Extract search parameters
   const page = Number(params.page) || 1;
-  const limit = Number(params.limit) || 12;
+  const limit = Number(params.limit) || 24;
   const search = params.search as string;
   const brandName = params.brand as string | string[];
   const size = params.size as string | string[];
