@@ -12,6 +12,12 @@ module.exports = {
         port: '',
         search: '',
       },
+      {
+        protocol: 'https',
+        hostname: 'placehold.co',
+        port: '',
+        search: '',
+      },
     ],
   },
 }

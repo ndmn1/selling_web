@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { FaEye } from "react-icons/fa";
 import type { Product } from "@/types/product";
+import { formatCurrency } from "@/lib/utils";
 
 function ProductItem({ product }: { product: Product }) {
   return (
@@ -18,7 +19,7 @@ function ProductItem({ product }: { product: Product }) {
         )}
         <Link href={`/product/${product.id}`}>
           <Image
-            src={"https://picsum.photos/200"}
+            src={product.mainImage}
             alt={product.name}
             width={300}
             height={300}
@@ -37,11 +38,11 @@ function ProductItem({ product }: { product: Product }) {
         </Link>
         <div className="flex items-center gap-2">
           <span className="font-semibold text-blue-600">
-            {product.salePrice.toLocaleString()}₫
+            {formatCurrency(product.salePrice)}
           </span>
           {product.price > product.salePrice && (
             <span className="text-sm text-gray-500 line-through">
-              {product.price.toLocaleString()}₫
+              {formatCurrency(product.price)}
             </span>
           )}
         </div>

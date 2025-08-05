@@ -7,6 +7,38 @@ import { OrderData } from "@/types/order";
 import { OrderStatus } from "@prisma/client";
 import { PAYMENT_METHOD } from "@/constant";
 
+export type UserOrder = {
+  id: string;
+  userId: string;
+  orderItems: {
+    id: string;
+    productId: string;
+    product: {
+      name: string;
+      mainImage: string;
+      brand: {
+        name: string;
+      } | null;
+    };
+    size: string;
+    quantity: number;
+    price: number;
+  }[];
+  status: OrderStatus;
+  totalAmount: number;
+  paymentMethod: string;
+  voucherCode?: string | null;
+  shippingAddress?: string | null;
+  phoneNumber?: string | null;
+  notes?: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export type UserOrderFormData = {
+  status: OrderStatus;
+};
+
 
 export async function createOrder(orderData: OrderData = {}) {
   try {
@@ -155,6 +187,103 @@ export async function getUserOrders() {
   } catch (error) {
     console.error("Error fetching user orders:", error);
     throw new Error(error instanceof Error ? error.message : "Failed to fetch orders");
+  }
+}
+
+export async function getUserOrderById(orderId: string): Promise<UserOrder | null> {
+  try {
+    const session = await auth();
+    
+    if (!session?.user?.id) {
+      throw new Error("Unauthorized");
+    }
+
+    const order = await db.order.findUnique({
+      where: {
+        id: orderId,
+        userId: session.user.id, // Ensure user can only see their own orders
+      },
+      include: {
+        orderItems: {
+          include: {
+            product: {
+              include: {
+                brand: {
+                  select: {
+                    name: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    return order;
+  } catch (error) {
+    console.error("Error fetching user order:", error);
+    throw new Error(error instanceof Error ? error.message : "Failed to fetch order");
+  }
+}
+
+export async function updateUserOrder(orderId: string, data: UserOrderFormData) {
+  try {
+    const session = await auth();
+    
+    if (!session?.user?.id) {
+      throw new Error("Unauthorized");
+    }
+
+    // Check if order exists and belongs to user
+    const existingOrder = await db.order.findUnique({
+      where: {
+        id: orderId,
+        userId: session.user.id,
+      },
+    });
+
+    if (!existingOrder) {
+      throw new Error("Order not found");
+    }
+
+    // Only allow cancellation if order is PENDING
+    if (data.status === OrderStatus.CANCELLED && existingOrder.status !== OrderStatus.PENDING) {
+      throw new Error("Can only cancel orders with PENDING status");
+    }
+
+    const order = await db.order.update({
+      where: {
+        id: orderId,
+        userId: session.user.id,
+      },
+      data: {
+        status: data.status,
+      },
+      include: {
+        orderItems: {
+          include: {
+            product: {
+              include: {
+                brand: {
+                  select: {
+                    name: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    revalidatePath("/profile");
+    revalidatePath(`/order/${orderId}`);
+
+    return order;
+  } catch (error) {
+    console.error("Error updating user order:", error);
+    throw new Error(error instanceof Error ? error.message : "Failed to update order");
   }
 }
 

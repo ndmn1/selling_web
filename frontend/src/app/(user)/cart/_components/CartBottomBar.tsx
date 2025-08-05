@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { useOrder } from "@/hooks/use-order";
 import { orderSchema } from "@/schemas/order";
 import { useCart } from "@/context/CartCountProvider";
+import Image from "next/image";
 
 function CartBottomBar() {
   const {
@@ -139,10 +140,12 @@ function CartBottomBar() {
         <div className="flex items-center gap-4">
           <div className="flex items-center">
             <div className="mr-2">
-              <img
-                src="/placeholder.svg?height=30&width=30"
+              <Image
+                src={customerInfo.paymentMethod === "bank_transfer" ? "/bank.png" : "/cod.png"}
                 alt="COD"
                 className="w-8 h-8"
+                width={30}
+                height={30}
               />
             </div>
             <div className="text-sm">

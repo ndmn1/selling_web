@@ -2,18 +2,14 @@
 
 import React from "react";
 import type { RecentOrder } from "@/actions/statistics";
+import { formatCurrency } from "@/lib/utils";
+import Image from "next/image";
 
 interface RecentOrdersProps {
   orders: RecentOrder[];
 }
 
 const RecentOrders = ({ orders }: RecentOrdersProps) => {
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("vi-VN", {
-      style: "currency",
-      currency: "VND",
-    }).format(price);
-  };
 
   const formatDate = (date: Date) => {
     return new Date(date).toLocaleDateString("vi-VN");
@@ -67,14 +63,12 @@ const RecentOrders = ({ orders }: RecentOrdersProps) => {
                     <td className="py-3 sm:py-4 px-2">
                       <div className="flex items-center space-x-2 sm:space-x-3">
                         <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-lg bg-gray-100 flex items-center justify-center overflow-hidden flex-shrink-0">
-                          <img
+                          <Image
                             src={order.productImage}
                             alt={order.productName}
+                            width={64}
+                            height={64}
                             className="w-full h-full object-cover rounded-lg"
-                            onError={(e) => {
-                              const target = e.target as HTMLImageElement;
-                              target.src = "/placeholder.svg";
-                            }}
                           />
                         </div>
                         <span className="text-xs sm:text-sm font-medium text-gray-900 truncate">
@@ -84,7 +78,7 @@ const RecentOrders = ({ orders }: RecentOrdersProps) => {
                     </td>
                     <td className="py-3 sm:py-4 px-2">
                       <span className="text-xs sm:text-sm text-gray-900">
-                        {formatPrice(order.price)}
+                        {formatCurrency(order.price)}
                       </span>
                     </td>
                     <td className="py-3 sm:py-4 px-2">
@@ -94,7 +88,7 @@ const RecentOrders = ({ orders }: RecentOrdersProps) => {
                     </td>
                     <td className="py-3 sm:py-4 px-2">
                       <span className="text-xs sm:text-sm font-medium text-gray-900 whitespace-nowrap">
-                        {formatPrice(order.totalAmount)}
+                        {formatCurrency(order.totalAmount)}
                       </span>
                     </td>
                     <td className="py-3 sm:py-4 px-2">

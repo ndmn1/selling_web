@@ -8,6 +8,8 @@ import DeleteModal from "@/components/admin/_components/DeleteModal";
 import Select from "@/components/Select";
 import { deleteOrder, updateOrder, type Order } from "@/actions/admin-order";
 import { OrderStatus } from "@prisma/client";
+import { getOrderStatusColor, getOrderStatusText } from "@/constant";
+import { formatCurrency } from "@/lib/utils";
 
 interface OrderListProps {
   initialOrders: Order[];
@@ -46,45 +48,7 @@ const OrderList = ({ initialOrders }: OrderListProps) => {
     }
   };
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("vi-VN", {
-      style: "currency",
-      currency: "VND",
-    }).format(price);
-  };
 
-  const statusOptions = [
-    {
-      label: "Chờ xử lý",
-      value: OrderStatus.PENDING,
-      className: "bg-yellow-100 text-yellow-800",
-    },
-    {
-      label: "Đã xác nhận",
-      value: OrderStatus.CONFIRMED,
-      className: "bg-blue-100 text-blue-800",
-    },
-    {
-      label: "Đang xử lý",
-      value: OrderStatus.PROCESSING,
-      className: "bg-purple-100 text-purple-800",
-    },
-    {
-      label: "Đang giao",
-      value: OrderStatus.SHIPPING,
-      className: "bg-indigo-100 text-indigo-800",
-    },
-    {
-      label: "Đã giao",
-      value: OrderStatus.DELIVERED,
-      className: "bg-green-100 text-green-800",
-    },
-    {
-      label: "Đã hủy",
-      value: OrderStatus.CANCELLED,
-      className: "bg-red-100 text-red-800",
-    },
-  ];
 
   const columns = [
     {
@@ -116,11 +80,16 @@ const OrderList = ({ initialOrders }: OrderListProps) => {
               onChange={(newValue) =>
                 handleStatusChange(newValue as OrderStatus, order)
               }
-              options={statusOptions}
+              options={Object.values(OrderStatus).map((status) => {
+                return {
+                  label: getOrderStatusText(status),
+                  value: status,
+                  className: getOrderStatusColor(status),
+                }
+              })}
               disabled={isUpdating}
               className={`rounded-md border text-sm p-2 ${
-                statusOptions.find((option) => option.value === value)
-                  ?.className
+                getOrderStatusColor(value as OrderStatus)
               }`}
             />
           </div>
@@ -130,7 +99,7 @@ const OrderList = ({ initialOrders }: OrderListProps) => {
     {
       header: "Tổng tiền",
       accessorKey: "totalAmount" as keyof Order,
-      cell: (value: Order[keyof Order]) => formatPrice(value as number),
+      cell: (value: Order[keyof Order]) => formatCurrency(value as number),
     },
     {
       header: "Thanh toán",

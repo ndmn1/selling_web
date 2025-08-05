@@ -6,6 +6,8 @@ import { MdUpload, MdDelete, MdAdd, MdClose } from "react-icons/md";
 import type { Product, ProductFormData } from "@/actions/product";
 import type { Brand } from "@/actions/brand";
 import { uploadImage, deleteImage } from "@/actions/upload";
+import { LocalImagePaths } from "@/constant";
+import Image from "next/image";
 
 interface ProductFormProps {
   initialData?: Product | null;
@@ -59,13 +61,13 @@ const ProductForm = ({ initialData, brands, onSubmit }: ProductFormProps) => {
         try {
           // Delete old main image if editing
           if (initialData?.mainImage) {
-            await deleteImage(initialData.mainImage);
+            await deleteImage(initialData.mainImage, LocalImagePaths.PRODUCT);
           }
 
           // Upload new main image
           const newMainImageUrl = await uploadImage(
             selectedMainFile,
-            "product"
+            LocalImagePaths.PRODUCT
           );
           finalFormData.mainImage = newMainImageUrl;
         } catch (error) {
@@ -80,13 +82,13 @@ const ProductForm = ({ initialData, brands, onSubmit }: ProductFormProps) => {
           // Delete old additional images if editing
           if (initialData?.images && initialData.images.length > 0) {
             for (const image of initialData.images) {
-              await deleteImage(image);
+              await deleteImage(image, LocalImagePaths.PRODUCT);
             }
           }
 
           // Upload new additional images
           const newImageUrls = await Promise.all(
-            selectedAdditionalFiles.map((file) => uploadImage(file, "product"))
+            selectedAdditionalFiles.map((file) => uploadImage(file, LocalImagePaths.PRODUCT))
           );
           finalFormData.images = newImageUrls;
         } catch (error) {
@@ -322,10 +324,12 @@ const ProductForm = ({ initialData, brands, onSubmit }: ProductFormProps) => {
             </label>
             {mainImagePreview ? (
               <div className="relative inline-block">
-                <img
+                <Image
                   src={mainImagePreview}
                   alt="Main product image"
                   className="w-64 h-64 object-cover rounded-lg border border-gray-200"
+                  width={256}
+                  height={256}
                 />
                 <button
                   type="button"
@@ -371,10 +375,12 @@ const ProductForm = ({ initialData, brands, onSubmit }: ProductFormProps) => {
             <div className="grid grid-cols-3 gap-4">
               {additionalImagesPreview.map((image, index) => (
                 <div key={index} className="relative">
-                  <img
+                  <Image
                     src={image}
                     alt={`Additional product image ${index + 1}`}
                     className="w-full h-24 object-cover rounded-lg border border-gray-200"
+                    width={256}
+                    height={256}
                   />
                   <button
                     type="button"

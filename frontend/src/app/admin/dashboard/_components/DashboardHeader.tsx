@@ -57,8 +57,7 @@ const DashboardHeader = () => {
             Dashboard
           </h1>
         </div>
-        <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-2">
-          <span className="text-sm">From</span>
+        <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-2 bg-white p-2 px-3 rounded-md">
           {/* Start Date */}
           <div className="relative ">
             <DatePicker

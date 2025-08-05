@@ -39,7 +39,7 @@ export default function OrderCard({ order }: OrderCardProps) {
             <div key={index} className="flex items-center space-x-4">
               <div className="flex-shrink-0">
                 <Image
-                  src={"/images/product-1.jpg"}
+                  src={item.image}
                   alt={item.name}
                   width={80}
                   height={80}

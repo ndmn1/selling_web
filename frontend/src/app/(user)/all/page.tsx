@@ -12,7 +12,7 @@ export default async function ProductsPage(props: {
 }) {
   const searchParams = await props.searchParams;
   const curPage = Number(searchParams.page) || 1;
-  const itemPerPage = 1; // Show 12 items per page
+  const itemPerPage = 12; // Show 12 items per page
 
   // Create a new searchParams object with the limit
   const fullSearchParams = {

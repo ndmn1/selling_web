@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { MdUpload, MdDelete } from "react-icons/md";
 import type { Brand, BrandFormData } from "@/actions/brand";
 import { uploadImage, deleteImage } from "@/actions/upload";
+import { LocalImagePaths } from "@/constant";
+import Image from "next/image";
 
 interface BrandFormProps {
   initialData?: Brand | null;
@@ -35,11 +37,11 @@ const BrandForm = ({ initialData, onSubmit }: BrandFormProps) => {
         try {
           // Delete old image if editing
           if (initialData?.logo) {
-            await deleteImage(initialData.logo);
+            await deleteImage(initialData.logo, LocalImagePaths.BRAND);
           }
 
           // Upload new image
-          const newLogoUrl = await uploadImage(selectedFile, "brand");
+          const newLogoUrl = await uploadImage(selectedFile, LocalImagePaths.BRAND);
           finalFormData.logo = newLogoUrl;
         } catch (error) {
           console.error("Error uploading image:", error);
@@ -125,9 +127,11 @@ const BrandForm = ({ initialData, onSubmit }: BrandFormProps) => {
 
         {previewUrl ? (
           <div className="relative inline-block">
-            <img
+            <Image
               src={previewUrl}
               alt="Brand logo"
+              width={256}
+              height={256}
               className="w-64 object-contain rounded-lg border border-gray-200"
             />
             <button

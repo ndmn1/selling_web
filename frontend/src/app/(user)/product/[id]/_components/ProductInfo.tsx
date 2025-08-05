@@ -95,7 +95,7 @@ function ProductInfo({ product }: { product: DetailedProduct }) {
                     onMouseEnter={() => setSelectedImage(index)}
                   >
                     <Image
-                      src={"https://picsum.photos/200"}
+                      src={img}
                       alt={`Product view ${index + 1}`}
                       width={40}
                       height={40}
@@ -113,7 +113,7 @@ function ProductInfo({ product }: { product: DetailedProduct }) {
                 </div>
 
                 <Image
-                  src={"https://picsum.photos/200"}
+                  src={product.mainImage}
                   alt={product.name}
                   fill
                   className="object-cover "
@@ -264,7 +264,7 @@ function ProductInfo({ product }: { product: DetailedProduct }) {
 
             <div className="flex gap-4 mb-6">
               <Image
-                src={"https://picsum.photos/200"}
+                src={product.mainImage}
                 alt={product.name}
                 width={80}
                 height={80}

@@ -6,6 +6,7 @@ import { MdEdit, MdDelete } from "react-icons/md";
 import TableCustom from "@/components/TableCustom";
 import DeleteModal from "@/components/admin/_components/DeleteModal";
 import { deleteBrandWithImage, type Brand } from "@/actions/brand";
+import Image from "next/image";
 
 interface BrandListProps {
   initialBrands: Brand[];
@@ -35,9 +36,11 @@ const BrandList = ({ initialBrands }: BrandListProps) => {
       accessorKey: "logo" as keyof Brand,
       cell: (value: Brand[keyof Brand]) =>
         value ? (
-          <img
+          <Image
             src={value as string}
             alt="Brand logo"
+            width={40}
+            height={40}
             className="w-10 h-10 object-contain rounded"
           />
         ) : (

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
@@ -11,8 +10,8 @@ import DropDownNavLink from "./DropDownNavLink";
 import { useCart } from "@/context/CartCountProvider";
 import { MdOutlineAccountCircle } from "react-icons/md";
 import { useSession, signOut } from "next-auth/react";
-import { useCurrentUser } from "@/hooks/use-current-user";
 import { useRouter } from "next/navigation";
+import { Brand, getBrands } from "@/actions/brand";
 
 interface NavLinkProps {
   path: string;
@@ -42,7 +41,14 @@ const Navbar = () => {
       name: "ABOUT US",
     },
   ];
-  const shoesBrands = ["Adidas", "Nike", "Puma", "Reebok", "Vans"];
+  const [shoesBrands, setShoesBrands] = useState<Brand[]>([]);
+  useEffect(() => {
+    const fetchBrands = async () => {
+      const brands = await getBrands();
+      setShoesBrands(brands.brands);
+    };
+    fetchBrands();
+  }, []);
   const [isOpen, setIsOpen] = useState(false);
   const [isOpenDrop, setIsOpenDrop] = useState(false);
   const [isSearch, setIsSearch] = useState(false);
@@ -264,12 +270,12 @@ const Navbar = () => {
                   <div className="space-y-4">
                     {shoesBrands.map((collection, idx) => (
                       <Link
-                        href="#"
+                        href={`/all?brand=${collection.name}`}
                         key={idx}
                         onClick={closeAllMenus}
                         className="flex items-center gap-3 hover:bg-gray-100 p-2 rounded"
                       >
-                        <span>{collection}</span>
+                        <span>{collection.name}</span>
                       </Link>
                     ))}
                   </div>

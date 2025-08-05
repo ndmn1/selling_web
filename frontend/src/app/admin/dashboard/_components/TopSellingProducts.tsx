@@ -3,18 +3,13 @@
 import React from "react";
 import { MdStar, MdStarBorder } from "react-icons/md";
 import type { TopProduct } from "@/actions/statistics";
-
+import { formatCurrency } from "@/lib/utils";
+import Image from "next/image";
 interface TopSellingProductsProps {
   products: TopProduct[];
 }
 
 const TopSellingProducts = ({ products }: TopSellingProductsProps) => {
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("vi-VN", {
-      style: "currency",
-      currency: "VND",
-    }).format(price);
-  };
 
   const renderStars = (rating: number = 4, maxRating: number = 5) => {
     const stars = [];
@@ -48,14 +43,12 @@ const TopSellingProducts = ({ products }: TopSellingProductsProps) => {
               className="bg-blue-50 rounded-xl p-3 sm:p-4 flex items-center space-x-3 sm:space-x-4"
             >
               <div className="w-12 h-12 sm:w-16 sm:h-16 bg-white rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
-                <img
+                <Image
                   src={product.image}
                   alt={product.name}
+                  width={64}
+                  height={64}
                   className="w-full h-full object-cover rounded-lg"
-                  onError={(e) => {
-                    const target = e.target as HTMLImageElement;
-                    target.src = "/placeholder.svg";
-                  }}
                 />
               </div>
               <div className="flex-1 min-w-0">
@@ -67,7 +60,7 @@ const TopSellingProducts = ({ products }: TopSellingProductsProps) => {
                 </div>
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                   <p className="text-base sm:text-lg font-bold text-gray-900">
-                    {formatPrice(product.price)}
+                    {formatCurrency(product.price)}
                   </p>
                   <p className="text-xs sm:text-sm text-gray-600">
                     Sold: {product.totalSold}

@@ -44,3 +44,8 @@ export function getOrderStatusColor(status: OrderStatus): string {
       return "bg-gray-100 text-gray-800";
   }
 }
+
+export enum LocalImagePaths {
+  BRAND = "/brands",
+  PRODUCT = "/products",
+}

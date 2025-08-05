@@ -391,6 +391,7 @@ export async function getCartItemFromCookies(cookieCartItems: CartItems) {
             where: { id: productId },
             include: {
               sizes: true,
+              brand: true,
             },
           });
 

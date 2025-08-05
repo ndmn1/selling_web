@@ -7,6 +7,8 @@ import TableCustom from "@/components/TableCustom";
 import DeleteModal from "@/components/admin/_components/DeleteModal";
 import { deleteProductWithImages, type Product } from "@/actions/product";
 import { Size } from "@prisma/client";
+import { formatCurrency } from "@/lib/utils";
+import Image from "next/image";
 
 interface ProductListProps {
   initialProducts: Product[];
@@ -34,12 +36,6 @@ const ProductList = ({ initialProducts }: ProductListProps) => {
     }
   };
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("vi-VN", {
-      style: "currency",
-      currency: "VND",
-    }).format(price);
-  };
 
   const columns = [
     {
@@ -47,10 +43,12 @@ const ProductList = ({ initialProducts }: ProductListProps) => {
       accessorKey: "mainImage" as keyof Product,
       cell: (value: Product[keyof Product]) =>
         value ? (
-          <img
+          <Image
             src={value as string}
             alt="Product image"
             className="w-16 h-16 object-cover rounded"
+            width={64}
+            height={64}
           />
         ) : (
           <div className="w-16 h-16 bg-gray-100 rounded flex items-center justify-center text-gray-400">
@@ -71,7 +69,7 @@ const ProductList = ({ initialProducts }: ProductListProps) => {
     {
       header: "Giá",
       accessorKey: "price" as keyof Product,
-      cell: (value: Product[keyof Product]) => formatPrice(value as number),
+      cell: (value: Product[keyof Product]) => formatCurrency(value as number),
     },
     {
       header: "Giảm giá",

@@ -4,7 +4,9 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { OrderStatus } from "@prisma/client";
 import type { Order, OrderFormData } from "@/actions/admin-order";
-
+import { formatCurrency } from "@/lib/utils";
+import { getOrderStatusText } from "@/constant";
+import Image from "next/image";
 interface OrderFormProps {
   initialData: Order;
   onSubmit: (data: OrderFormData) => Promise<void>;
@@ -32,12 +34,6 @@ const OrderForm = ({ initialData, onSubmit }: OrderFormProps) => {
     }
   };
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("vi-VN", {
-      style: "currency",
-      currency: "VND",
-    }).format(price);
-  };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -62,12 +58,11 @@ const OrderForm = ({ initialData, onSubmit }: OrderFormProps) => {
               }
               className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
             >
-              <option value={OrderStatus.PENDING}>Chờ xử lý</option>
-              <option value={OrderStatus.CONFIRMED}>Đã xác nhận</option>
-              <option value={OrderStatus.PROCESSING}>Đang xử lý</option>
-              <option value={OrderStatus.SHIPPING}>Đang giao</option>
-              <option value={OrderStatus.DELIVERED}>Đã giao</option>
-              <option value={OrderStatus.CANCELLED}>Đã hủy</option>
+              {Object.values(OrderStatus).map((status) => (
+                <option key={status} value={status}>
+                  {getOrderStatusText(status)}
+                </option>
+              ))}
             </select>
           </div>
 
@@ -127,7 +122,7 @@ const OrderForm = ({ initialData, onSubmit }: OrderFormProps) => {
               </p>
               <p>
                 <span className="font-medium">Tổng tiền:</span>{" "}
-                {formatPrice(initialData.totalAmount)}
+                {formatCurrency(initialData.totalAmount)}
               </p>
             </div>
           </div>
@@ -145,9 +140,11 @@ const OrderForm = ({ initialData, onSubmit }: OrderFormProps) => {
                 key={item.id}
                 className="flex items-center space-x-4 bg-gray-50 p-4 rounded-lg"
               >
-                <img
+                <Image
                   src={item.product.mainImage}
                   alt={item.product.name}
+                  width={64}
+                  height={64}
                   className="w-16 h-16 object-cover rounded"
                 />
                 <div className="flex-1">
@@ -156,7 +153,7 @@ const OrderForm = ({ initialData, onSubmit }: OrderFormProps) => {
                     Size: {item.size} | Số lượng: {item.quantity}
                   </p>
                   <p className="text-sm font-medium">
-                    {formatPrice(item.price * item.quantity)}
+                    {formatCurrency(item.price * item.quantity)}
                   </p>
                 </div>
               </div>

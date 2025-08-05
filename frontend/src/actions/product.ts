@@ -1,4 +1,5 @@
 "use server";
+import { LocalImagePaths } from "@/constant";
 import { db } from "@/lib/db";
 
 export type Product = {
@@ -251,13 +252,13 @@ export async function deleteProductWithImages(id: string, mainImage?: string | n
     // Delete the product images if they exist
     if (mainImage) {
       const { deleteImage } = await import("./upload");
-      await deleteImage(mainImage);
+      await deleteImage(mainImage, LocalImagePaths.PRODUCT);
     }
     
     if (images && images.length > 0) {
       const { deleteImage } = await import("./upload");
       for (const image of images) {
-        await deleteImage(image);
+        await deleteImage(image, LocalImagePaths.PRODUCT);
       }
     }
     

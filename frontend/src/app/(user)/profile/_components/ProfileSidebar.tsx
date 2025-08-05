@@ -1,6 +1,8 @@
 "use client";
 
 import { signOut } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 interface User {
   id: string;
@@ -12,18 +14,20 @@ interface User {
 interface ProfileSidebarProps {
   user: User;
   activeTab: string;
-  setActiveTab: (tab: string) => void;
 }
 
 export default function ProfileSidebar({
   user,
   activeTab,
-  setActiveTab,
 }: ProfileSidebarProps) {
+  const router = useRouter();
   const handleSignOut = async () => {
     await signOut({ callbackUrl: "/" });
   };
 
+  const handleTabChange = (tab: string) => {
+    router.push(`/profile?tab=${tab}`);
+  };
   return (
     <>
       {/* Mobile Horizontal Navigation */}
@@ -31,7 +35,7 @@ export default function ProfileSidebar({
         <div className="bg-white border border-gray-200 rounded-lg p-3 mb-6">
           <div className="flex justify-around items-center">
             <button
-              onClick={() => setActiveTab("info")}
+              onClick={() => handleTabChange("info")}
               className={`flex flex-col items-center space-y-1 p-2 rounded-md ${
                 activeTab === "info" ? "text-orange-600" : "text-gray-600"
               }`}
@@ -54,7 +58,7 @@ export default function ProfileSidebar({
             </button>
 
             <button
-              onClick={() => setActiveTab("orders")}
+              onClick={() => handleTabChange("orders")}
               className={`flex flex-col items-center space-y-1 p-2 rounded-md ${
                 activeTab === "orders" ? "text-orange-600" : "text-gray-600"
               }`}
@@ -107,10 +111,12 @@ export default function ProfileSidebar({
             <div className="flex items-center space-x-3">
               <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center text-gray-600">
                 {user.image ? (
-                  <img
+                  <Image
                     src={user.image}
                     alt={user.name || "User"}
                     className="w-12 h-12 rounded-full object-cover"
+                    width={48}
+                    height={48}
                   />
                 ) : (
                   user.name?.charAt(0) || "U"
@@ -124,7 +130,7 @@ export default function ProfileSidebar({
           </div>
           <nav className="p-2">
             <button
-              onClick={() => setActiveTab("info")}
+              onClick={() => handleTabChange("info")}
               className={`w-full text-left px-4 py-2 rounded-md flex items-center space-x-2 ${
                 activeTab === "info"
                   ? "bg-orange-50 text-orange-600"
@@ -148,7 +154,7 @@ export default function ProfileSidebar({
               <span>Thông tin tài khoản</span>
             </button>
             <button
-              onClick={() => setActiveTab("orders")}
+              onClick={() => handleTabChange("orders")}
               className={`w-full text-left px-4 py-2 rounded-md flex items-center space-x-2 ${
                 activeTab === "orders"
                   ? "bg-orange-50 text-orange-600"

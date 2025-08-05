@@ -465,7 +465,7 @@ function CustomerInfo() {
             />
             <div className="flex items-center gap-2">
               <Image
-                src="/placeholder.svg?height=40&width=40"
+                src="/cod.png"
                 alt="COD"
                 className="w-10 h-10"
                 width={40}
@@ -488,7 +488,7 @@ function CustomerInfo() {
             />
             <div className="flex items-center gap-2">
               <Image
-                src="/placeholder.svg?height=40&width=40"
+                src="/bank.png"
                 alt="Bank"
                 className="w-10 h-10"
                 width={40}
@@ -500,7 +500,7 @@ function CustomerInfo() {
             </div>
 
             <div className="text-xs text-gray-500 ml-12">
-              Quét QR để thanh toán
+              Điều hướng đến trang thanh toán
             </div>
           </label>
           {validationErrors["paymentMethod"] && (

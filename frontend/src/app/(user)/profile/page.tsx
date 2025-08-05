@@ -7,6 +7,7 @@ import ProfileSidebar from "./_components/ProfileSidebar";
 import UserInfoForm from "./_components/UserInfoForm";
 import OrdersList from "./_components/OrdersList";
 import { Order } from "@/types/order";
+import { useSearchParams } from "next/navigation";
 
 interface User {
   id: string;
@@ -16,7 +17,8 @@ interface User {
 }
 
 export default function ProfilePage() {
-  const [activeTab, setActiveTab] = useState("info");
+  const searchParams = useSearchParams();
+  const tab = searchParams.get("tab") || "info";
   const [user, setUser] = useState<User | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -95,19 +97,15 @@ export default function ProfilePage() {
 
         <div className="flex flex-col lg:flex-row gap-6">
           {/* Sidebar - handles both mobile and desktop */}
-          <ProfileSidebar
-            user={user}
-            activeTab={activeTab}
-            setActiveTab={setActiveTab}
-          />
+          <ProfileSidebar user={user} activeTab={tab} />
 
           {/* Main Content */}
           <div className="w-full flex-1">
             {/* User Info Tab */}
-            {activeTab === "info" && <UserInfoForm user={user} />}
+            {tab === "info" && <UserInfoForm user={user} />}
 
             {/* Orders Tab */}
-            {activeTab === "orders" && <OrdersList orders={orders} />}
+            {tab === "orders" && <OrdersList orders={orders} />}
           </div>
         </div>
       </div>

@@ -1,5 +1,6 @@
 "use server";
 import { db } from "@/lib/db";
+import { LocalImagePaths } from "@/constant";
 
 export type Brand = {
   id: string;
@@ -136,7 +137,7 @@ export async function deleteBrandWithImage(id: string, logoUrl?: string | null) 
     // Delete the brand image if it exists
     if (logoUrl) {
       const { deleteImage } = await import("./upload");
-      await deleteImage(logoUrl);
+      await deleteImage(logoUrl, LocalImagePaths.BRAND);
     }
     
     // Delete the brand from database

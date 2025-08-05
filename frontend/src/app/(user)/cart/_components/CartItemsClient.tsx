@@ -12,6 +12,7 @@ import { getCookie } from "@/lib/cookies";
 import { FaChevronDown, FaTrash } from "react-icons/fa";
 import { FiMinus, FiPlus } from "react-icons/fi";
 import { useSession } from "next-auth/react";
+import { formatCurrency } from "@/lib/utils";
 
 interface CartItemsClientProps {
   serverCartItems: CartProduct[];
@@ -31,16 +32,16 @@ function CartItemsClient({
   } = useCartSummary();
   const [isChanging, setIsChanging] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("vi-VN").format(price) + "đ";
-  };
+
   const [curVocher, setCurVocher] = useState("");
+  const [errorVocher, setErrorVocher] = useState("");
   const applyVoucher = (code: string) => {
     if (code === "VOCHER") {
       setCurVocher("");
       changeVocherCode(code);
+      setErrorVocher("");
     } else {
-      alert("Invalid voucher code");
+      setErrorVocher("Mã giảm giá không hợp lệ");
     }
   };
   const {
@@ -249,12 +250,11 @@ function CartItemsClient({
     setIsChanging(false);
   };
 
-  return (
-    isLoading || isChanging ? (
-      <div className="flex justify-center items-center h-screen">
-        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-gray-900"></div>
-      </div>
-    ) : (
+  return isLoading || isChanging ? (
+    <div className="flex justify-center items-center h-screen">
+      <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-gray-900"></div>
+    </div>
+  ) : (
     <div className="bg-white border rounded-lg p-6 space-y-6">
       <h2 className="text-2xl font-bold">Giỏ hàng</h2>
 
@@ -418,7 +418,7 @@ function CartItemsClient({
 
                 <div className="flex flex-col items-end gap-2">
                   <span className="text-lg font-bold">
-                    {formatPrice(cartItem.salePrice || cartItem.price)}
+                    {formatCurrency(cartItem.salePrice || cartItem.price)}
                   </span>
                   <button
                     className="flex items-center text-gray-500 hover:text-red-500"
@@ -459,11 +459,11 @@ function CartItemsClient({
             Áp dụng Voucher
           </button>
         </div>
-
+        {errorVocher && <p className="text-red-500 text-xs">{errorVocher}</p>}
         <div className="space-y-2">
           <div className="flex justify-between">
             <span>Tạm tính</span>
-            <span>{formatPrice(total)}</span>
+            <span>{formatCurrency(total)}</span>
           </div>
           <div className="flex justify-between">
             <span>Giảm giá</span>
@@ -476,7 +476,7 @@ function CartItemsClient({
           <hr className="my-2" />
           <div className="flex justify-between font-bold">
             <span>Tổng</span>
-            <span>{formatPrice(total)}</span>
+            <span>{formatCurrency(total)}</span>
           </div>
           {validationErrors.total && (
             <p className="text-red-500 text-sm mt-1">
@@ -484,9 +484,8 @@ function CartItemsClient({
             </p>
           )}
         </div>
-        </div>
       </div>
-    )
+    </div>
   );
 }
 
