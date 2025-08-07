@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { MdEdit, MdDelete } from "react-icons/md";
 import TableCustom from "@/components/TableCustom";
-import DeleteModal from "@/components/admin/_components/DeleteModal";
+import DeleteModal from "@/components/admin/DeleteModal";
 import { deleteProductWithImages, type Product } from "@/actions/product";
 import { Size } from "@prisma/client";
 import { formatCurrency } from "@/lib/utils";
@@ -35,7 +35,6 @@ const ProductList = ({ initialProducts }: ProductListProps) => {
       console.error("Error deleting product:", error);
     }
   };
-
 
   const columns = [
     {

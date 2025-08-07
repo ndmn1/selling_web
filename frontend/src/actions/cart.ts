@@ -5,9 +5,7 @@ const prisma = db
 
 // Type definitions
 type CartItems = {
-  [productId: string]: {
-    [sizeId: string]: number
-  }
+  [sizeId: string]: number
 }
 
 // Sync cart between cookie and database (mock implementation)
@@ -17,7 +15,7 @@ export async function syncCart(cookieCart: CartItems): Promise<CartItems> {
 }
 
 // Add item to cart (for logged-in users)
-export async function addToCart(userId: string, productId: string, sizeId: string, quantity: number = 1) {
+export async function addToCart(userId: string, sizeId: string, quantity: number = 1) {
   try {
     // Get or create user's cart
     let cart = await prisma.cart.findUnique({
@@ -31,13 +29,10 @@ export async function addToCart(userId: string, productId: string, sizeId: strin
     }
 
     // Check if item already exists in cart
-    const existingItem = await prisma.cartItem.findUnique({
+    const existingItem = await prisma.cartItem.findFirst({
       where: {
-        cartId_productId_sizeId: {
-          cartId: cart.id,
-          productId,
-          sizeId
-        }
+        cartId: cart.id,
+        sizeId
       }
     })
 
@@ -52,7 +47,6 @@ export async function addToCart(userId: string, productId: string, sizeId: strin
       await prisma.cartItem.create({
         data: {
           cartId: cart.id,
-          productId,
           sizeId,
           quantity
         }
@@ -68,7 +62,7 @@ export async function addToCart(userId: string, productId: string, sizeId: strin
 }
 
 // Remove item from cart (for logged-in users)
-export async function removeFromCart(userId: string, productId: string, sizeId: string) {
+export async function removeFromCart(userId: string, sizeId: string) {
   try {
     const cart = await prisma.cart.findUnique({
       where: { userId },
@@ -83,7 +77,7 @@ export async function removeFromCart(userId: string, productId: string, sizeId: 
 
     // Find the cart item to remove
     const cartItem = cart.items.find(item => 
-      item.productId === productId && item.sizeId === sizeId
+      item.sizeId === sizeId
     )
 
     if (!cartItem) {
@@ -103,10 +97,10 @@ export async function removeFromCart(userId: string, productId: string, sizeId: 
 }
 
 // Update cart item quantity (for logged-in users)
-export async function updateCartItemQuantity(userId: string, productId: string, sizeId: string, quantity: number) {
+export async function updateCartItemQuantity(userId: string, sizeId: string, quantity: number) {
   try {
     if (quantity <= 0) {
-      return removeFromCart(userId, productId, sizeId)
+      return removeFromCart(userId, sizeId)
     }
 
     const cart = await prisma.cart.findUnique({
@@ -122,7 +116,7 @@ export async function updateCartItemQuantity(userId: string, productId: string, 
 
     // Find the cart item to update
     const cartItem = cart.items.find(item => 
-      item.productId === productId && item.sizeId === sizeId
+      item.sizeId === sizeId
     )
 
     if (!cartItem) {
@@ -143,7 +137,7 @@ export async function updateCartItemQuantity(userId: string, productId: string, 
 }
 
 // Change item size (for logged-in users)
-export async function changeItemSize(userId: string, productId: string, oldSizeId: string, newSizeId: string) {
+export async function changeItemSize(userId: string, oldSizeId: string, newSizeId: string) {
   try {
     const cart = await prisma.cart.findUnique({
       where: { userId },
@@ -158,7 +152,7 @@ export async function changeItemSize(userId: string, productId: string, oldSizeI
 
     // Find the old cart item
     const oldCartItem = cart.items.find(item => 
-      item.productId === productId && item.sizeId === oldSizeId
+      item.sizeId === oldSizeId
     )
 
     if (!oldCartItem) {
@@ -167,7 +161,7 @@ export async function changeItemSize(userId: string, productId: string, oldSizeI
 
     // Check if item with new size already exists
     const existingNewItem = cart.items.find(item => 
-      item.productId === productId && item.sizeId === newSizeId
+      item.sizeId === newSizeId
     )
 
     if (existingNewItem) {
@@ -237,33 +231,30 @@ export async function syncCartToDatabase(userId: string, cookieCart: CartItems) 
     }
 
     // Process each item from cookies
-    for (const [productId, sizes] of Object.entries(cookieCart)) {
-      for (const [sizeId, quantity] of Object.entries(sizes)) {
-        if (quantity > 0) {
-          // Check if item already exists in database cart
-          const existingItem = cart.items.find(item => 
-            item.productId === productId && item.sizeId === sizeId
-          )
+    for (const [sizeId, quantity] of Object.entries(cookieCart)) {
+      if (quantity > 0) {
+        // Check if item already exists in database cart
+        const existingItem = cart.items.find(item => 
+          item.sizeId === sizeId
+        )
 
-          if (existingItem) {
-            if(existingItem.quantity !== quantity){
-            // Update quantity (add cookie quantity to existing)
-              await prisma.cartItem.update({
-                where: { id: existingItem.id },
-                data: { quantity: quantity }
-              })
-            }
-          } else {
-            // Create new cart item
-            await prisma.cartItem.create({
-              data: {
-                cartId: cart.id,
-                productId,
-                sizeId,
-                quantity
-              }
+        if (existingItem) {
+          if(existingItem.quantity !== quantity){
+          // Update quantity (add cookie quantity to existing)
+            await prisma.cartItem.update({
+              where: { id: existingItem.id },
+              data: { quantity: quantity }
             })
           }
+        } else {
+          // Create new cart item
+          await prisma.cartItem.create({
+            data: {
+              cartId: cart.id,
+              sizeId,
+              quantity
+            }
+          })
         }
       }
     }
@@ -280,10 +271,7 @@ export async function syncCartToDatabase(userId: string, cookieCart: CartItems) 
     const updatedCookieCart: CartItems = {}
     if (updatedCart) {
       updatedCart.items.forEach(item => {
-        if (!updatedCookieCart[item.productId]) {
-          updatedCookieCart[item.productId] = {}
-        }
-        updatedCookieCart[item.productId][item.sizeId] = item.quantity
+        updatedCookieCart[item.sizeId] = item.quantity
       })
     }
 
@@ -316,10 +304,7 @@ export async function syncCartFromDatabase(userId: string): Promise<CartItems> {
     const cookieCart: CartItems = {}
 
     cart.items.forEach(item => {
-      if (!cookieCart[item.productId]) {
-        cookieCart[item.productId] = {}
-      }
-      cookieCart[item.productId][item.sizeId] = item.quantity
+      cookieCart[item.sizeId] = item.quantity
     })
 
     return cookieCart
@@ -359,7 +344,11 @@ export async function getCartTotal() {
       include: {
         items: {
           include: {
-            product: true
+            size: {
+              include: {
+                product: true
+              }
+            }
           }
         }
       }
@@ -368,7 +357,7 @@ export async function getCartTotal() {
     if (!cart) return 0
 
     return cart.items.reduce((total: number, item) => {
-      const price = item.product.price - (item.product.price * item.product.discount / 100)
+      const price = item.size.product.price - (item.size.product.price * item.size.product.discount / 100)
       return total + (price * item.quantity)
     }, 0)
   } catch (error) {
@@ -382,43 +371,59 @@ export async function getCartItemFromCookies(cookieCartItems: CartItems) {
   try {
     const flattenedItems = [];
 
-    // Convert the nested structure to a flat array for display
-    for (const [productId, sizes] of Object.entries(cookieCartItems)) {
-      for (const [sizeId, quantity] of Object.entries(sizes)) {
-        if (quantity > 0) {
-          // Get product details from database
-          const product = await prisma.product.findUnique({
-            where: { id: productId },
-            include: {
-              sizes: true,
-              brand: true,
-            },
-          });
+    // Get all size IDs from cookie cart items
+    const sizeIds = Object.keys(cookieCartItems);
 
-          if (product) {
-            // Find the specific size
-            const selectedSize = product.sizes.find(size => size.id === sizeId);
-            
-            if (selectedSize) {
-              flattenedItems.push({
-                cartId: `${productId}-${selectedSize.size}`,
-                id: product.id,
-                name: product.name,
-                brand: product.brand,
-                mainImage: product.mainImage,
-                price: product.price,
-                salePrice: product.price * (1 - product.discount / 100),
-                discount: product.discount,
-                quantity,
-                selectedSize: selectedSize.size,
-                sizes: product.sizes.map((size) => ({
-                  id: size.id,
-                  size: size.size,
-                  stock: size.stock,
-                })),
-              });
-            }
+    if (sizeIds.length === 0) {
+      return [];
+    }
+
+    // Get all sizes with their products and brands using Prisma
+    const sizes = await prisma.size.findMany({
+      where: { 
+        id: { 
+          in: sizeIds 
+        } 
+      },
+      include: {
+        product: {
+          include: {
+            brand: true,
+            sizes: true,
           }
+        }
+      },
+    });
+
+    // Create a map for quick size lookup
+    const sizeMap = new Map(sizes.map(size => [size.id, size]));
+
+    // Convert the structure to a flat array for display
+    for (const [sizeId, quantity] of Object.entries(cookieCartItems)) {
+      if (quantity > 0) {
+        const size = sizeMap.get(sizeId);
+        
+        if (size) {
+          const product = size.product;
+          flattenedItems.push({
+            cartId: `${product.id}-${size.size}`,
+            id: product.id,
+            name: product.name,
+            brand: product.brand.name,
+            mainImage: product.mainImage,
+            price: product.price,
+            salePrice: product.price * (1 - product.discount / 100),
+            discount: product.discount,
+            quantity,
+            selectedSize: size.size,
+            selectedSizeId: size.id,
+            selectedSizeStock: size.stock,
+            sizes: product.sizes.map((s) => ({
+              id: s.id,
+              size: s.size,
+              stock: s.stock,
+            })),
+          });
         }
       }
     }

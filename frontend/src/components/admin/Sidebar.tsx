@@ -11,7 +11,6 @@ import {
 } from "react-icons/md";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-
 interface SidebarProps {
   isOpen: boolean;
   onClose: () => void;

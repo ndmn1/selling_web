@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { MdEdit, MdDelete } from "react-icons/md";
 import TableCustom from "@/components/TableCustom";
-import DeleteModal from "@/components/admin/_components/DeleteModal";
+import DeleteModal from "@/components/admin/DeleteModal";
 import Select from "@/components/Select";
 import { deleteOrder, updateOrder, type Order } from "@/actions/admin-order";
 import { OrderStatus } from "@prisma/client";
@@ -48,8 +48,6 @@ const OrderList = ({ initialOrders }: OrderListProps) => {
     }
   };
 
-
-
   const columns = [
     {
       header: "Mã đơn hàng",
@@ -85,12 +83,12 @@ const OrderList = ({ initialOrders }: OrderListProps) => {
                   label: getOrderStatusText(status),
                   value: status,
                   className: getOrderStatusColor(status),
-                }
+                };
               })}
               disabled={isUpdating}
-              className={`rounded-md border text-sm p-2 ${
-                getOrderStatusColor(value as OrderStatus)
-              }`}
+              className={`rounded-md border text-sm p-2 ${getOrderStatusColor(
+                value as OrderStatus
+              )}`}
             />
           </div>
         );

@@ -57,8 +57,11 @@ export async function createOrder(orderData: OrderData = {}) {
       include: {
         items: {
           include: {
-            product: true,
-            size: true,
+            size: {
+              include: {
+                product: true
+              },
+            },
           },
           where: {
             id: { in: cartItems?.map((item) => item.cartId) || [] }
@@ -73,7 +76,7 @@ export async function createOrder(orderData: OrderData = {}) {
 
     // Calculate total amount
     const totalAmount = cart.items.reduce((total, item) => {
-      const price = item.product.price * (1 - item.product.discount / 100);
+      const price = item.size.product.price * (1 - item.size.product.discount / 100);
       return total + price * item.quantity;
     }, 0);
 
@@ -90,10 +93,10 @@ export async function createOrder(orderData: OrderData = {}) {
         notes,
         orderItems: {
           create: cart.items.map((item) => ({
-            productId: item.productId,
+            productId: item.size.product.id,
             size: item.size.size,
             quantity: item.quantity,
-            price: item.product.price * (1 - item.product.discount / 100),
+            price: item.size.product.price * (1 - item.size.product.discount / 100),
           })),
         },
       },
@@ -131,15 +134,6 @@ export async function createOrder(orderData: OrderData = {}) {
   }
 }
 
-export async function createOrderAndRedirect(orderData: OrderData = {}) {
-  try {
-    const result = await createOrder(orderData);
-    return result;
-  } catch (error) {
-    console.error("Error creating order:", error);
-    throw error;
-  }
-}
 
 export async function getUserOrders() {
   try {

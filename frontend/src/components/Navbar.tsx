@@ -195,6 +195,14 @@ const Navbar = () => {
                     >
                       Profile
                     </Link>
+                    {data?.user?.role === "ADMIN" && (
+                      <Link
+                        href="/admin/dashboard"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        Admin Dashboard
+                      </Link>
+                    )}
                     <button
                       onClick={handleLogout}
                       className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
@@ -267,13 +275,13 @@ const Navbar = () => {
                       BỘ SƯU TẬP
                     </h3>
                   </div>
-                  <div className="space-y-4">
+                  <div className="space-y-4 lg:space-y-0 mt-3 lg:grid lg:grid-cols-2">
                     {shoesBrands.map((collection, idx) => (
                       <Link
                         href={`/all?brand=${collection.name}`}
                         key={idx}
                         onClick={closeAllMenus}
-                        className="flex items-center gap-3 hover:bg-gray-100 p-2 rounded"
+                        className="flex items-center hover:bg-gray-100 p-2 rounded lg:p-3"
                       >
                         <span>{collection.name}</span>
                       </Link>

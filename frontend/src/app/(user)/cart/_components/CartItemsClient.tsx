@@ -1,27 +1,20 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 import { useCart } from "@/context/CartCountProvider";
 import { useCartSummary } from "@/context/CartSummaryProvider";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import React from "react";
 import Image from "next/image";
-import { detailProducts } from "@/data/product";
-import { DetailedProduct } from "@/types/product";
 import { CartProduct } from "@/types/product";
-import { getCookie } from "@/lib/cookies";
 import { FaChevronDown, FaTrash } from "react-icons/fa";
 import { FiMinus, FiPlus } from "react-icons/fi";
-import { useSession } from "next-auth/react";
 import { formatCurrency } from "@/lib/utils";
 
 interface CartItemsClientProps {
   serverCartItems: CartProduct[];
-  isLoggedIn: boolean;
 }
 
 function CartItemsClient({
-  serverCartItems,
-  isLoggedIn,
+  serverCartItems,  
 }: CartItemsClientProps) {
   const {
     changeTotal,
@@ -48,7 +41,6 @@ function CartItemsClient({
     removeFromCart,
     changeItemQuantity,
     changeItemSize,
-    getCookieCartItems,
     isLoading,
   } = useCart();
   const [cartItems, setCartItems] = useState<CartProduct[]>([]);
@@ -59,35 +51,8 @@ function CartItemsClient({
       if (serverCartItems.length > 0) {
         // Use server cart items (handles both logged-in and guest users)
         setCartItems(serverCartItems);
-      } else {
-        // Fallback: use cookie cart items if server didn't provide any
-        const cookieCartItems = getCookieCartItems();
-        const flattenedItems: CartProduct[] = [];
-
-        // Convert the nested structure to a flat array for display
-        // Record<string, Record<string, number>>
-        Object.entries(cookieCartItems).forEach(([productId, sizes]) => {
-          Object.entries(sizes as Record<string, number>).forEach(
-            ([size, quantity]) => {
-              const product = detailProducts.find(
-                (item) => item.id === productId
-              );
-              if (product) {
-                flattenedItems.push({
-                  ...product,
-                  selectedSize: size,
-                  quantity,
-                  cartId: `${productId}-${size}`,
-                });
-              }
-            }
-          );
-        });
-
-        setCartItems(flattenedItems);
       }
     };
-
     loadCartItems();
   }, []);
 
@@ -100,7 +65,7 @@ function CartItemsClient({
     const sizeId = cartItem?.sizes.find((s) => s.size === size)?.id;
 
     if (sizeId) {
-      await removeFromCart(productId, sizeId);
+      await removeFromCart(sizeId);
     }
 
     setCartItems((prev) =>
@@ -164,7 +129,7 @@ function CartItemsClient({
 
     setIsChanging(true);
     if (sizeId) {
-      await changeItemQuantity(productId, sizeId, newQuantity);
+      await changeItemQuantity(sizeId, newQuantity);
     }
 
     // Update local state
@@ -204,7 +169,7 @@ function CartItemsClient({
     const newSizeId = oldItem?.sizes.find((s) => s.size === newSize)?.id;
 
     if (oldSizeId && newSizeId) {
-      changeItemSize(productId, oldSizeId, newSizeId, newSizeStock);
+      changeItemSize(oldSizeId, newSizeId, newSizeStock);
     }
 
     const newCart = cartItems.filter(
@@ -236,7 +201,7 @@ function CartItemsClient({
     for (const item of selectedItems) {
       const sizeId = item.sizes.find((s) => s.size === item.selectedSize)?.id;
       if (sizeId) {
-        await removeFromCart(item.id, sizeId);
+        await removeFromCart(sizeId);
       }
     }
 

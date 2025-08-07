@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { UserRole } from "@prisma/client";
-import ModalCustom from "@/components/admin/_components/ModalCustom";
+import ModalCustom from "@/components/admin/ModalCustom";
 import {
   createUser,
   updateUser,

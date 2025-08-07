@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
     const ip = forwarded ? forwarded.split(',')[0] : request.headers.get('x-real-ip') || '127.0.0.1';
     console.log("ip", ip);
     const paymentUrl = vnpayService.createPaymentUrl({
-      amount: parseInt(amount) * 100,
+      amount: parseInt(amount),
       orderInfo,
       orderId,
       ipAddr: ip,

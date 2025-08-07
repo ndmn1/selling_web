@@ -41,6 +41,7 @@ const LoginForm = ({ isIntercept = false }: { isIntercept?: boolean }) => {
         reset();
         setSuccess(data.success);
       } else if (data?.redirect) {
+        console.log("Redirecting to:", data);
         router.replace(data.redirect);
         await update();
       }

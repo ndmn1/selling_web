@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { MdEdit, MdDelete, MdLock } from "react-icons/md";
 import TableCustom from "@/components/TableCustom";
-import DeleteModal from "@/components/admin/_components/DeleteModal";
+import DeleteModal from "@/components/admin/DeleteModal";
 import UserModal from "./UserModal";
 import ResetPasswordModal from "./ResetPasswordModal";
 import { deleteUser, type User } from "@/actions/admin-user";

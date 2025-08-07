@@ -8,6 +8,7 @@ import { useOrder } from "@/hooks/use-order";
 import { orderSchema } from "@/schemas/order";
 import { useCart } from "@/context/CartCountProvider";
 import Image from "next/image";
+import { formatCurrency } from "@/lib/utils";
 
 function CartBottomBar() {
   const {
@@ -92,14 +93,18 @@ function CartBottomBar() {
             };
             if (pendingOrderData.cartItems) {
               pendingOrderData.cartItems.forEach((cartItem) => {
-                const sizeId = cartItem.sizes.find(s => s.size === cartItem.selectedSize)?.id;
+                const sizeId = cartItem.sizes.find(
+                  (s) => s.size === cartItem.selectedSize
+                )?.id;
                 if (sizeId) {
-                  removeFromCookieCart(cartItem.id, sizeId);
+                  removeFromCookieCart(sizeId);
                 }
               });
             }
             const jsonString = JSON.stringify(pendingOrderData);
-            const encodedData = Buffer.from(jsonString, 'utf8').toString('base64');
+            const encodedData = Buffer.from(jsonString, "utf8").toString(
+              "base64"
+            );
             document.cookie = `pendingOrder=${encodedData}; path=/; max-age=3600; SameSite=Lax`;
 
             // Redirect to VNPay payment page
@@ -141,7 +146,11 @@ function CartBottomBar() {
           <div className="flex items-center">
             <div className="mr-2">
               <Image
-                src={customerInfo.paymentMethod === "bank_transfer" ? "/bank.png" : "/cod.png"}
+                src={
+                  customerInfo.paymentMethod === "bank_transfer"
+                    ? "/bank.png"
+                    : "/cod.png"
+                }
                 alt="COD"
                 className="w-8 h-8"
                 width={30}
@@ -167,7 +176,7 @@ function CartBottomBar() {
           <div>
             <div className="text-blue-600">
               Thành tiền{" "}
-              <span className="text-blue-600 font-bold">{total}đ</span>
+              <span className="text-blue-600 font-bold">{formatCurrency(total)}</span>
             </div>
             {status === "unauthenticated" && (
               <div className="text-xs text-right">

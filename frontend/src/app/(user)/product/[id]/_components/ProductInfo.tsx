@@ -38,7 +38,7 @@ function ProductInfo({ product }: { product: DetailedProduct }) {
   const handleAddToBag = async () => {
     if (!selectedSizeId || !product) return;
     setLoading(true);
-    await addToCart(product.id, selectedSizeId, 1);
+    await addToCart(selectedSizeId, 1);
     setAddedToBag(true);
     router.refresh();
     setLoading(false);

@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import ModalCustom from "@/components/admin/_components/ModalCustom";
+import ModalCustom from "@/components/admin/ModalCustom";
 import { resetPassword, type User } from "@/actions/admin-user";
 
 interface ResetPasswordModalProps {

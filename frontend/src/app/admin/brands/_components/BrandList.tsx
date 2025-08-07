@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { MdEdit, MdDelete } from "react-icons/md";
 import TableCustom from "@/components/TableCustom";
-import DeleteModal from "@/components/admin/_components/DeleteModal";
+import DeleteModal from "@/components/admin/DeleteModal";
 import { deleteBrandWithImage, type Brand } from "@/actions/brand";
 import Image from "next/image";
 

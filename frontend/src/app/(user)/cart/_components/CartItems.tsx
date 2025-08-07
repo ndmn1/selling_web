@@ -37,7 +37,6 @@ async function CartItemServer() {
   return (
     <CartItemsClient
       serverCartItems={serverCartItems}
-      isLoggedIn={!!session?.user?.id}
     />
   );
 }

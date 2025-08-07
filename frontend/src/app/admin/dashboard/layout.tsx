@@ -1,5 +1,5 @@
 import React, { Suspense } from "react";
-import DashboardSkeleton from "../../../components/admin/_components/DashboardSkeleton";
+import DashboardSkeleton from "../../../components/admin/DashboardSkeleton";
 
 export default function AdminLayout({
   children,

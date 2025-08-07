@@ -8,14 +8,10 @@ export default async function UserLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body>
-        <CartProvider>
-          <Navbar />
-          {children}
-          <Footer />
-        </CartProvider>
-      </body>
-    </html>
+    <CartProvider>
+      <Navbar />
+      {children}
+      <Footer />
+    </CartProvider>
   );
 }
