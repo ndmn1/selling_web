@@ -23,6 +23,8 @@ function CustomerInfo() {
     validationErrors,
     clearValidationError,
   } = useCartSummary();
+  const { data: session } = useSession();
+  const userId = session?.user?.id;
   const { status } = useSession();
   const [savedAddresses, setSavedAddresses] = useState<Address[]>([]);
   const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
@@ -82,7 +84,8 @@ function CustomerInfo() {
     if(!provinces.length) return;
     const fetchAddresses = async () => {
       try {
-        const addresses = await getUserAddresses();
+        if(!userId) return;
+        const addresses = await getUserAddresses(userId);
         setSavedAddresses(addresses);
 
         // If there's a default address, set it as selected
@@ -103,7 +106,7 @@ function CustomerInfo() {
     };
 
     fetchAddresses();
-  }, [provinces]);
+  }, [provinces, userId]);
 
   // Fetch districts when province changes
   useEffect(() => {

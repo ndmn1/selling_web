@@ -261,7 +261,7 @@ function CartItemsClient({
                 />
                 <div className="relative h-24 w-24 bg-gray-100">
                   <Image
-                    src={"/logo.png"}
+                    src={cartItem.mainImage}
                     alt={cartItem.name}
                     fill
                     className="object-cover"
