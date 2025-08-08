@@ -1,7 +1,6 @@
 import { db } from "@/lib/db"
 import type { CartProduct, DetailedProduct, Product } from "@/types/product"
 import type { SearchParams } from "@/app/(user)/all/page"
-import { Brand } from "@prisma/client";
 // Server-side functions to get products
 export async function getProducts(searchParams: SearchParams): Promise<{ products: Product[], total: number }> {
   const params = await searchParams;
@@ -146,10 +145,7 @@ export async function getProducts(searchParams: SearchParams): Promise<{ product
  
 }
 
-export async function getBrands(): Promise<Brand[]> {
-  const brands = await db.brand.findMany();
-  return brands;
-}
+
 
 export async function getProductById(id: string): Promise<DetailedProduct | null> {
   const product = await db.product.findUnique({

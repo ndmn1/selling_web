@@ -20,6 +20,10 @@ export type BrandFormData = {
   description?: string;
 };
 
+export async function getAllBrands(): Promise<Brand[]> {
+  const brands = await db.brand.findMany();
+  return brands;
+}
 export async function getBrands(search?: string, page: number = 1, limit: number = 10) {
   try {
     const skip = (page - 1) * limit;

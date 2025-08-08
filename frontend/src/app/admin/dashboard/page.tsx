@@ -11,8 +11,8 @@ import {
   getSalesData,
   getAnalyticsData,
   getTopSellingProducts,
-  type DateRange,
 } from "@/actions/statistics";
+import type { DateRange } from "@/types/statistics";
 
 export type DashboardSearchParams = Promise<{
   [key: string]: string | string[] | undefined;

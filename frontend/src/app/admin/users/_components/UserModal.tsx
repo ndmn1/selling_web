@@ -4,12 +4,8 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { UserRole } from "@prisma/client";
 import ModalCustom from "@/components/admin/ModalCustom";
-import {
-  createUser,
-  updateUser,
-  type User,
-  type UserFormData,
-} from "@/actions/admin-user";
+import { createUser, updateUser } from "@/actions/admin-user";
+import type { User, UserFormData } from "@/types/admin-user";
 
 interface UserModalProps {
   isOpen: boolean;

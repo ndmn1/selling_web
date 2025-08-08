@@ -1,24 +1,11 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { UserRole, Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client";
+import type { UserFormData } from "@/types/admin-user";
 import bcrypt from "bcryptjs";
 
-export type User = {
-  id: string;
-  name: string | null;
-  email: string;
-  role: UserRole;
-  createdAt: Date;
-  updatedAt: Date;
-};
-
-export type UserFormData = {
-  name?: string | null;
-  email: string;
-  role: UserRole;
-  password?: string;
-};
+// types moved to @/types/admin-user
 
 export async function getUsers(search?: string, page: number = 1, limit: number = 10) {
   try {

@@ -2,24 +2,12 @@
 
 import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
-
-interface User {
-  id: string;
-  name: string | null;
-  email: string | null;
-  image: string | null;
-}
 
 interface ProfileSidebarProps {
-  user: User;
   activeTab: string;
 }
 
-export default function ProfileSidebar({
-  user,
-  activeTab,
-}: ProfileSidebarProps) {
+export default function ProfileSidebar({ activeTab }: ProfileSidebarProps) {
   const router = useRouter();
   const handleSignOut = async () => {
     await signOut({ callbackUrl: "/" });
@@ -107,26 +95,8 @@ export default function ProfileSidebar({
       {/* Desktop Vertical Sidebar */}
       <div className="hidden lg:block w-full min-w-64 md:w-1/4 lg:w-1/5">
         <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-          <div className="p-4 bg-gray-50 border-b border-gray-200">
-            <div className="flex items-center space-x-3">
-              <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center text-gray-600">
-                {user.image ? (
-                  <Image
-                    src={user.image}
-                    alt={user.name || "User"}
-                    className="w-12 h-12 rounded-full object-cover"
-                    width={48}
-                    height={48}
-                  />
-                ) : (
-                  user.name?.charAt(0) || "U"
-                )}
-              </div>
-              <div>
-                <div className="font-medium">{user.name || "Người dùng"}</div>
-                <div className="text-sm text-gray-500">{user.email}</div>
-              </div>
-            </div>
+          <div className="py-3 px-4 bg-gray-50 border-b border-gray-200">
+            <div className="font-semibold">Bảng điều khiển</div>
           </div>
           <nav className="p-2">
             <button

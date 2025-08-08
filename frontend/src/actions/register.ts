@@ -3,7 +3,7 @@
 import { RegisterSchema } from "@/schemas/auth";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
-import { getUserByEmail } from "@/data/user";
+import { getUserByEmail } from "@/actions/user";
 import { db } from "@/lib/db";
 export const register = async (values: z.infer<typeof RegisterSchema>) => {
   const validatedFields = RegisterSchema.safeParse(values);

@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { changePassword } from "@/actions/user";
 
-export default function ChangePasswordForm() {
+export default function ChangePasswordForm({ userId }: { userId: string }) {
   const [isPending, startTransition] = useTransition();
   const [formData, setFormData] = useState({
     oldPassword: "",
@@ -37,7 +37,7 @@ export default function ChangePasswordForm() {
 
     startTransition(async () => {
       try {
-        await changePassword(formData.oldPassword, formData.newPassword);
+        await changePassword(userId, formData.oldPassword, formData.newPassword);
         setMessage({ type: "success", text: "Đổi mật khẩu thành công!" });
         setFormData({
           oldPassword: "",

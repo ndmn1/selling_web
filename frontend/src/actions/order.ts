@@ -3,41 +3,11 @@
 import { db } from "@/lib/db";
 import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
-import { OrderData } from "@/types/order";
+import { OrderData, UserOrder, UserOrderFormData } from "@/types/order";
 import { OrderStatus } from "@prisma/client";
 import { PAYMENT_METHOD } from "@/constant";
 
-export type UserOrder = {
-  id: string;
-  userId: string;
-  orderItems: {
-    id: string;
-    productId: string;
-    product: {
-      name: string;
-      mainImage: string;
-      brand: {
-        name: string;
-      } | null;
-    };
-    size: string;
-    quantity: number;
-    price: number;
-  }[];
-  status: OrderStatus;
-  totalAmount: number;
-  paymentMethod: string;
-  voucherCode?: string | null;
-  shippingAddress?: string | null;
-  phoneNumber?: string | null;
-  notes?: string | null;
-  createdAt: Date;
-  updatedAt: Date;
-};
-
-export type UserOrderFormData = {
-  status: OrderStatus;
-};
+// types moved to @/types/order
 
 
 export async function createOrder(orderData: OrderData = {}) {

@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import type { RecentOrder } from "@/actions/statistics";
+import type { RecentOrder } from "@/types/statistics";
 import { formatCurrency } from "@/lib/utils";
 import Image from "next/image";
 
@@ -10,7 +10,6 @@ interface RecentOrdersProps {
 }
 
 const RecentOrders = ({ orders }: RecentOrdersProps) => {
-
   const formatDate = (date: Date) => {
     return new Date(date).toLocaleDateString("vi-VN");
   };

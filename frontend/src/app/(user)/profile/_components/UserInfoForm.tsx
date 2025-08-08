@@ -33,7 +33,7 @@ export default function UserInfoForm({ user }: UserInfoFormProps) {
 
     startTransition(async () => {
       try {
-        await updateUserProfile({
+        await updateUserProfile(user.id, {
           name: formData.name,
         });
         setMessage({ type: "success", text: "Cập nhật thông tin thành công!" });
@@ -109,10 +109,10 @@ export default function UserInfoForm({ user }: UserInfoFormProps) {
       </div>
 
       {/* Change Password Form */}
-      <ChangePasswordForm />
+      <ChangePasswordForm userId={user.id} />
 
       {/* Address Management */}
-      <AddressManagement />
+      <AddressManagement userId={user.id} />
     </div>
   );
 }

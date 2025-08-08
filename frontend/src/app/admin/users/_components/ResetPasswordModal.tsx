@@ -3,7 +3,8 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import ModalCustom from "@/components/admin/ModalCustom";
-import { resetPassword, type User } from "@/actions/admin-user";
+import { resetPassword } from "@/actions/admin-user";
+import type { User } from "@/types/admin-user";
 
 interface ResetPasswordModalProps {
   isOpen: boolean;

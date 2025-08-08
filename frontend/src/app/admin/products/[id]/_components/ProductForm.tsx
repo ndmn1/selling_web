@@ -3,7 +3,7 @@
 import React, { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { MdUpload, MdDelete, MdAdd, MdClose } from "react-icons/md";
-import type { Product, ProductFormData } from "@/actions/product";
+import type { Product, ProductFormData } from "@/types/admin-product";
 import type { Brand } from "@/actions/brand";
 import { uploadImage, deleteImage } from "@/actions/upload";
 import { LocalImagePaths } from "@/constant";
@@ -88,7 +88,9 @@ const ProductForm = ({ initialData, brands, onSubmit }: ProductFormProps) => {
 
           // Upload new additional images
           const newImageUrls = await Promise.all(
-            selectedAdditionalFiles.map((file) => uploadImage(file, LocalImagePaths.PRODUCT))
+            selectedAdditionalFiles.map((file) =>
+              uploadImage(file, LocalImagePaths.PRODUCT)
+            )
           );
           finalFormData.images = newImageUrls;
         } catch (error) {

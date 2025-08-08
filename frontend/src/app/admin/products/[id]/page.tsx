@@ -5,9 +5,10 @@ import {
   getProductById,
   createProduct,
   updateProduct,
-  type ProductFormData,
 } from "@/actions/product";
+import type { ProductFormData } from "@/types/admin-product";
 import { getBrands } from "@/actions/brand";
+import type { Product } from "@/types/admin-product";
 
 interface ProductPageProps {
   params: Promise<{
@@ -51,7 +52,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
       </div>
       <div className="bg-white rounded-lg p-6">
         <ProductForm
-          initialData={product}
+          initialData={product as Product}
           brands={brands}
           onSubmit={onSubmit}
         />

@@ -2,7 +2,7 @@
 
 import React from "react";
 import { MdSave, MdInventory, MdTrendingUp, MdWork } from "react-icons/md";
-import type { DashboardStats } from "@/actions/statistics";
+import type { DashboardStats } from "@/types/statistics";
 
 interface StatsCardsProps {
   stats: DashboardStats;

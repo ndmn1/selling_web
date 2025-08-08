@@ -4,8 +4,8 @@ import OrderForm from "./_components/OrderForm";
 import {
   getUserOrderById,
   updateUserOrder,
-  type UserOrderFormData,
 } from "@/actions/order";
+import type { UserOrderFormData } from "@/types/order";
 
 interface OrderPageProps {
   params: {

@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { OrderStatus } from "@prisma/client";
-import type { Order, OrderFormData } from "@/actions/admin-order";
+import type { Order, OrderFormData } from "@/types/admin-order";
 import { formatCurrency } from "@/lib/utils";
 import { getOrderStatusText } from "@/constant";
 import Image from "next/image";
@@ -33,7 +33,6 @@ const OrderForm = ({ initialData, onSubmit }: OrderFormProps) => {
       setIsLoading(false);
     }
   };
-
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">

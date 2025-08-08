@@ -1,5 +1,4 @@
 import NextAuth from "next-auth";
-
 import authConfig from "@/auth.config";
 import { DEFAULT_LOGIN_REDIRECT, apiAuthPrefix, authRoutes, publicRoutes } from "@/route";
 
@@ -10,9 +9,8 @@ export default auth((req) => {
   const isApiAuthRoute = nextUrl.pathname.startsWith(apiAuthPrefix);
   const isPublicRoute = publicRoutes.includes(nextUrl.pathname) || nextUrl.pathname.startsWith('/product');
   const isAuthRoute = authRoutes.includes(nextUrl.pathname);
-
  // if (req.headers.get("accept") == "text/x-component") return; // pass through for server actions
-  
+  const isAdminRoute = nextUrl.pathname.startsWith("/admin");
   if (isApiAuthRoute) return;
 
   if (isAuthRoute) {
@@ -33,6 +31,9 @@ export default auth((req) => {
       `/login?callbackUrl=${encodedCallbackUrl}`,
       nextUrl
     ));
+  }
+  if (isAdminRoute && req.auth?.user?.role !== "ADMIN") {
+    return Response.redirect(new URL(DEFAULT_LOGIN_REDIRECT, nextUrl))
   }
 
   return;

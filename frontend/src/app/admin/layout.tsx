@@ -3,7 +3,6 @@
 import React, { useState } from "react";
 import Sidebar from "@/components/admin/Sidebar";
 import { MdMenu } from "react-icons/md";
-import AdminProtected from "@/components/admin/AdminProtected";
 
 export default function AdminLayout({
   children,
@@ -20,7 +19,7 @@ export default function AdminLayout({
   };
 
   return (
-    <AdminProtected>
+    <>
       <div className="flex h-screen bg-gray-50">
         {/* Sidebar */}
         <Sidebar isOpen={sidebarOpen} onClose={closeSidebar} />
@@ -52,6 +51,6 @@ export default function AdminLayout({
           </main>
         </div>
       </div>
-    </AdminProtected>
+    </>
   );
 }

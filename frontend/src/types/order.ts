@@ -28,3 +28,36 @@ export interface Order {
   status: OrderStatus;
   items: OrderItem[];
 }
+
+// user order detail page
+export type UserOrder = {
+  id: string;
+  userId: string;
+  orderItems: {
+    id: string;
+    productId: string;
+    product: {
+      name: string;
+      mainImage: string;
+      brand: {
+        name: string;
+      } | null;
+    };
+    size: string;
+    quantity: number;
+    price: number;
+  }[];
+  status: OrderStatus;
+  totalAmount: number;
+  paymentMethod: string;
+  voucherCode?: string | null;
+  shippingAddress?: string | null;
+  phoneNumber?: string | null;
+  notes?: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export type UserOrderFormData = {
+  status: OrderStatus;
+};

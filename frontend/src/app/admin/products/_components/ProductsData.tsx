@@ -2,6 +2,7 @@ import React from "react";
 import ProductList from "./ProductList";
 import PaginationClient from "@/components/PaginationClient";
 import { getProducts } from "@/actions/product";
+import type { Product } from "@/types/admin-product";
 
 interface ProductsDataProps {
   search?: string;
@@ -26,7 +27,7 @@ export default async function ProductsData({
 
   return (
     <>
-      <ProductList initialProducts={products} />
+      <ProductList initialProducts={products as Product[]} />
 
       {total > 0 && (
         <div className="mt-6">

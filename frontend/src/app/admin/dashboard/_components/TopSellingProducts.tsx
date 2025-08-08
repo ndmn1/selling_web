@@ -2,7 +2,7 @@
 
 import React from "react";
 import { MdStar, MdStarBorder } from "react-icons/md";
-import type { TopProduct } from "@/actions/statistics";
+import type { TopProduct } from "@/types/statistics";
 import { formatCurrency } from "@/lib/utils";
 import Image from "next/image";
 interface TopSellingProductsProps {
@@ -10,7 +10,6 @@ interface TopSellingProductsProps {
 }
 
 const TopSellingProducts = ({ products }: TopSellingProductsProps) => {
-
   const renderStars = (rating: number = 4, maxRating: number = 5) => {
     const stars = [];
     for (let i = 1; i <= maxRating; i++) {

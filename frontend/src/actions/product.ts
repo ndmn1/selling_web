@@ -1,46 +1,9 @@
 "use server";
 import { LocalImagePaths } from "@/constant";
 import { db } from "@/lib/db";
+import type { ProductFormData } from "@/types/admin-product";
 
-export type Product = {
-  id: string;
-  name: string;
-  brandId: string;
-  brand: {
-    id: string;
-    name: string;
-  };
-  mainImage: string;
-  price: number;
-  discount: number;
-  description: string;
-  images: string[];
-  sizes: {
-    id: string;
-    size: string;
-    stock: number;
-  }[];
-  createdAt: Date;
-  updatedAt: Date;
-  _count?: {
-    cartItems: number;
-    orderItems: number;
-  };
-};
-
-export type ProductFormData = {
-  name: string;
-  brandId: string;
-  mainImage: string;
-  price: number;
-  discount: number;
-  description: string;
-  images: string[];
-  sizes: {
-    size: string;
-    stock: number;
-  }[];
-};
+// types moved to @/types/admin-product
 
 export async function getProducts(search?: string, page: number = 1, limit: number = 10, brandName?: string) {
   try {
@@ -88,7 +51,6 @@ export async function getProducts(search?: string, page: number = 1, limit: numb
           },
           _count: {
             select: {
-              cartItems: true,
               orderItems: true
             }
           }
@@ -137,7 +99,6 @@ export async function getProductById(id: string) {
         },
         _count: {
           select: {
-            cartItems: true,
             orderItems: true
           }
         }

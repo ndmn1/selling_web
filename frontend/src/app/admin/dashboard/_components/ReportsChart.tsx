@@ -12,7 +12,7 @@ import {
   Legend,
 } from "chart.js";
 import { Line } from "react-chartjs-2";
-import type { SalesData } from "@/actions/statistics";
+import type { SalesData } from "@/types/statistics";
 
 ChartJS.register(
   CategoryScale,

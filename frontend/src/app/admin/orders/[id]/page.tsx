@@ -1,11 +1,8 @@
 import React from "react";
 import { notFound } from "next/navigation";
 import OrderForm from "./_components/OrderForm";
-import {
-  getOrderById,
-  updateOrder,
-  type OrderFormData,
-} from "@/actions/admin-order";
+import { getOrderById, updateOrder } from "@/actions/admin-order";
+import type { OrderFormData } from "@/types/admin-order";
 
 interface OrderPageProps {
   params: Promise<{

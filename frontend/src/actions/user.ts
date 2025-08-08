@@ -1,20 +1,44 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
 import bcrypt from "bcryptjs";
 
-export async function getUserProfile() {
+export const getAccountByUserId = async (userId: string) => { // account is create when user sign in with social media
   try {
-    const session = await auth();
-    
-    if (!session?.user?.id) {
-      throw new Error("Unauthorized");
-    }
+    const account = await db.account.findFirst({
+      where: { userId }
+    });
 
+    return account;
+  } catch {
+    return null;
+  }
+};
+export const getUserByEmail = async (email: string) => {
+  try {
+    const user = await db.user.findUnique({ where: { email } });
+    
+    return user;
+  } catch {
+    return null;
+  }
+};
+
+export const getUserById = async (id: string) => {
+  try {
+    const user = await db.user.findUnique({ where: { id } });
+
+    return user;
+  } catch {
+    return null;
+  }
+};
+
+export async function getUserProfile(userId: string) {
+  try {
     const user = await db.user.findUnique({
-      where: { id: session.user.id },
+      where: { id: userId },
       select: {
         id: true,
         name: true,
@@ -34,20 +58,15 @@ export async function getUserProfile() {
   }
 }
 
-export async function updateUserProfile(userData: {
+export async function updateUserProfile(userId: string, userData: {
   name?: string;
   phone?: string;
   address?: string;
 }) {
   try {
-    const session = await auth();
-    
-    if (!session?.user?.id) {
-      throw new Error("Unauthorized");
-    }
 
     const updatedUser = await db.user.update({
-      where: { id: session.user.id },
+      where: { id: userId },
       data: {
         ...userData,
       },
@@ -68,16 +87,11 @@ export async function updateUserProfile(userData: {
   }
 }
 
-export async function changePassword(oldPassword: string, newPassword: string) {
+export async function changePassword(userId: string, oldPassword: string, newPassword: string) {
   try {
-    const session = await auth();
-    
-    if (!session?.user?.id) {
-      throw new Error("Unauthorized");
-    }
 
     const user = await db.user.findUnique({
-      where: { id: session.user.id },
+      where: { id: userId },
       select: {
         password: true,
       },
@@ -96,7 +110,7 @@ export async function changePassword(oldPassword: string, newPassword: string) {
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
     await db.user.update({
-      where: { id: session.user.id },
+      where: { id: userId },
       data: { password: hashedPassword },
     });
 
@@ -107,16 +121,11 @@ export async function changePassword(oldPassword: string, newPassword: string) {
   }
 }
 
-export async function getUserAddresses() {
+export async function getUserAddresses(userId: string) {
   try {
-    const session = await auth();
-    
-    if (!session?.user?.id) {
-      throw new Error("Unauthorized");
-    }
 
     const addresses = await db.address.findMany({
-      where: { userId: session.user.id },
+      where: { userId: userId },
       orderBy: [
         { isDefault: "desc" },
         { createdAt: "desc" }
@@ -130,7 +139,7 @@ export async function getUserAddresses() {
   }
 }
 
-export async function createAddress(addressData: {
+export async function createAddress(userId: string, addressData: {
   title: string;
   phoneNumber: string;
   address: string;
@@ -140,16 +149,12 @@ export async function createAddress(addressData: {
   isDefault?: boolean;
 }) {
   try {
-    const session = await auth();
-    
-    if (!session?.user?.id) {
-      throw new Error("Unauthorized");
-    }
+
 
     // If this address is set as default, update all other addresses to not be default
     if (addressData.isDefault) {
       await db.address.updateMany({
-        where: { userId: session.user.id },
+        where: { userId: userId },
         data: { isDefault: false },
       });
     }
@@ -157,7 +162,7 @@ export async function createAddress(addressData: {
     const newAddress = await db.address.create({
       data: {
         ...addressData,
-        userId: session.user.id,
+        userId: userId,
       },
     });
 
@@ -169,7 +174,7 @@ export async function createAddress(addressData: {
   }
 }
 
-export async function updateAddress(addressId: string, addressData: {
+export async function updateAddress(userId: string, addressId: string, addressData: {
   title?: string;
   fullName?: string;
   phoneNumber?: string;
@@ -180,15 +185,11 @@ export async function updateAddress(addressId: string, addressData: {
   isDefault?: boolean;
 }) {
   try {
-    const session = await auth();
-    
-    if (!session?.user?.id) {
-      throw new Error("Unauthorized");
-    }
+
 
     // Verify the address belongs to the user
     const existingAddress = await db.address.findFirst({
-      where: { id: addressId, userId: session.user.id },
+      where: { id: addressId, userId: userId },
     });
 
     if (!existingAddress) {
@@ -198,7 +199,7 @@ export async function updateAddress(addressId: string, addressData: {
     // If this address is set as default, update all other addresses to not be default
     if (addressData.isDefault) {
       await db.address.updateMany({
-        where: { userId: session.user.id, id: { not: addressId } },
+        where: { userId: userId, id: { not: addressId } },
         data: { isDefault: false },
       });
     }
@@ -216,17 +217,11 @@ export async function updateAddress(addressId: string, addressData: {
   }
 }
 
-export async function deleteAddress(addressId: string) {
+export async function deleteAddress(userId: string, addressId: string) {
   try {
-    const session = await auth();
-    
-    if (!session?.user?.id) {
-      throw new Error("Unauthorized");
-    }
-
     // Verify the address belongs to the user
     const existingAddress = await db.address.findFirst({
-      where: { id: addressId, userId: session.user.id },
+      where: { id: addressId, userId: userId },
     });
 
     if (!existingAddress) {

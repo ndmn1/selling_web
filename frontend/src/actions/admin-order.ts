@@ -2,40 +2,9 @@
 
 import { db } from "@/lib/db";
 import { OrderStatus, Prisma } from "@prisma/client";
+import type { OrderFormData } from "@/types/admin-order";
 
-export type Order = {
-  id: string;
-  userId: string;
-  user: {
-    name: string | null;
-    email: string;
-  };
-  orderItems: {
-    id: string;
-    productId: string;
-    product: {
-      name: string;
-      mainImage: string;
-    };
-    size: string;
-    quantity: number;
-    price: number;
-  }[];
-  status: OrderStatus;
-  totalAmount: number;
-  paymentMethod: string;
-  voucherCode?: string | null;
-  shippingAddress?: string | null;
-  phoneNumber?: string | null;
-  notes?: string | null;
-  createdAt: Date;
-  updatedAt: Date;
-};
-
-export type OrderFormData = {
-  status: OrderStatus;
-  notes?: string;
-};
+// types moved to @/types/admin-order
 
 export async function getOrders(search?: string, page: number = 1, limit: number = 10, status?: string) {
   try {

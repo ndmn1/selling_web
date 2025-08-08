@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { OrderStatus } from "@prisma/client";
-import type { UserOrder, UserOrderFormData } from "@/actions/order";
+import type { UserOrder, UserOrderFormData } from "@/types/order";
 import { formatCurrency } from "@/lib/utils";
 import { getOrderStatusText, getOrderStatusColor } from "@/constant";
 import Image from "next/image";
@@ -30,7 +30,6 @@ const OrderForm = ({ initialData, onSubmit }: OrderFormProps) => {
     }
   };
 
-
   const canCancel = initialData.status === OrderStatus.PENDING;
 
   return (
@@ -48,7 +47,9 @@ const OrderForm = ({ initialData, onSubmit }: OrderFormProps) => {
             </label>
             <div className="mt-1">
               <span
-                className={`inline-flex px-3 py-2 text-sm rounded-md ${getOrderStatusColor(initialData.status)}`}
+                className={`inline-flex px-3 py-2 text-sm rounded-md ${getOrderStatusColor(
+                  initialData.status
+                )}`}
               >
                 {getOrderStatusText(initialData.status)}
               </span>

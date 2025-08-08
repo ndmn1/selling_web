@@ -1,11 +1,16 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getUserAddresses, deleteAddress } from "@/actions/user";
+import {
+  getUserAddresses,
+  deleteAddress,
+  createAddress,
+  updateAddress,
+} from "@/actions/user";
 import AddressModal from "./AddressModal";
 import { Address } from "@/types/user";
 
-export default function AddressManagement() {
+export default function AddressManagement({ userId }: { userId: string }) {
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -14,7 +19,7 @@ export default function AddressManagement() {
   const fetchAddresses = async () => {
     try {
       setLoading(true);
-      const result = await getUserAddresses();
+      const result = await getUserAddresses(userId);
       setAddresses(result);
     } catch (error) {
       console.error("Error fetching addresses:", error);
@@ -35,7 +40,7 @@ export default function AddressManagement() {
   const handleDelete = async (addressId: string) => {
     if (confirm("Bạn có chắc chắn muốn xóa địa chỉ này?")) {
       try {
-        await deleteAddress(addressId);
+        await deleteAddress(userId, addressId);
         await fetchAddresses(); // Refresh the list
       } catch (error) {
         console.error("Error deleting address:", error);
@@ -51,6 +56,22 @@ export default function AddressManagement() {
 
   const handleModalSuccess = () => {
     fetchAddresses(); // Refresh the list
+  };
+
+  const handleModalSubmit = async (data: {
+    title: string;
+    phoneNumber: string;
+    address: string;
+    ward?: string;
+    district?: string;
+    province: string;
+    isDefault: boolean;
+  }) => {
+    if (editingAddress) {
+      await updateAddress(userId, editingAddress.id, data);
+    } else {
+      await createAddress(userId, data);
+    }
   };
 
   if (loading) {
@@ -179,6 +200,7 @@ export default function AddressManagement() {
         onClose={handleModalClose}
         onSuccess={handleModalSuccess}
         address={editingAddress}
+        onSubmit={handleModalSubmit}
       />
     </>
   );

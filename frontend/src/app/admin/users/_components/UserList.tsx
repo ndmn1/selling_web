@@ -6,7 +6,8 @@ import TableCustom from "@/components/TableCustom";
 import DeleteModal from "@/components/admin/DeleteModal";
 import UserModal from "./UserModal";
 import ResetPasswordModal from "./ResetPasswordModal";
-import { deleteUser, type User } from "@/actions/admin-user";
+import { deleteUser } from "@/actions/admin-user";
+import type { User } from "@/types/admin-user";
 import { useRouter } from "next/navigation";
 
 interface UserListProps {

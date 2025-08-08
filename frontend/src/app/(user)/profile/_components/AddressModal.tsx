@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useTransition, useEffect } from "react";
-import { createAddress, updateAddress } from "@/actions/user";
 import { Address } from "@/types/user";
 import {
   getProvinces,
@@ -16,6 +15,15 @@ interface AddressModalProps {
   onClose: () => void;
   onSuccess: () => void;
   address?: Address | null;
+  onSubmit: (data: {
+    title: string;
+    phoneNumber: string;
+    address: string;
+    ward?: string;
+    district?: string;
+    province: string;
+    isDefault: boolean;
+  }) => Promise<void>;
 }
 
 export default function AddressModal({
@@ -23,6 +31,7 @@ export default function AddressModal({
   onClose,
   onSuccess,
   address,
+  onSubmit,
 }: AddressModalProps) {
   const [isPending, startTransition] = useTransition();
   const [formData, setFormData] = useState({
@@ -274,11 +283,7 @@ export default function AddressModal({
           isDefault: formData.isDefault,
         };
 
-        if (address) {
-          await updateAddress(address.id, addressData);
-        } else {
-          await createAddress(addressData);
-        }
+        await onSubmit(addressData);
 
         onSuccess();
         onClose();
