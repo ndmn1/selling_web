@@ -235,36 +235,3 @@ NEXTAUTH_URL=
 GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
 ```
-
-## 📝 API Routes
-
-The application includes the following API routes:
-
-- `POST /api/auth/*` - Authentication endpoints
-- `GET /api/products` - Product listing
-- `POST /api/cart/*` - Cart operations
-- `POST /api/orders/*` - Order management
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
-
-## 📄 License
-
-This project is licensed under the MIT License.
-
-## 🆘 Support
-
-If you encounter any issues:
-
-1. Check the troubleshooting section
-2. Review the console logs
-3. Open an issue on GitHub
-
----
-
-**Happy coding! 🎉**
