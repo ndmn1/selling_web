@@ -1,47 +1,46 @@
-import ProductGrid from "@/components/ProductGrid";
-import Sidebar from "@/components/SideBar";
+import ProductGrid from "@/app/(user)/all/_components/ProductGrid";
+import SideBarServer from "@/components/FilterBar";
 import Pagination from "@/components/Pagination";
-import { products } from "@/data/product";
 import { Suspense } from "react";
 import Loading from "./loading";
 
-type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
+export type SearchParams = {
+  [key: string]: string | string[] | undefined;
+};
 export default async function ProductsPage(props: {
   searchParams: SearchParams;
 }) {
   const searchParams = await props.searchParams;
   const curPage = Number(searchParams.page) || 1;
-  const itemPerPage = 3;
-  const start = (curPage - 1) * itemPerPage;
-  const end = curPage * itemPerPage;
+  const itemPerPage = 12; // Show 12 items per page
+
+  // Create a new searchParams object with the limit
+  const fullSearchParams = {
+    ...searchParams,
+    limit: itemPerPage.toString(),
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <div className="container mx-auto px-4 py-6">
         <div className="flex flex-col md:flex-row gap-6 relative">
-          <Sidebar />
+          <Suspense fallback={<Loading />}>
+            <SideBarServer />
+          </Suspense>
           <div className="flex-1">
             <div className="mb-6">
-              <h1 className="text-2xl md:text-3xl font-bold text-gray-800 uppercase">
+              <h1 className="text-2xl md:text-3xl font-bold text-gray-800 uppercase mb-4">
                 TẤT CẢ SẢN PHẨM
               </h1>
             </div>
-            <Suspense key={JSON.stringify(searchParams)} fallback={<Loading/>}>
-              <ProductGrid
-                data={
-                  new Promise((resolve) => {
-                    setTimeout(() => resolve(products.slice(start, end)), 1000);
-                  })
-                }
-              />
+            <Suspense key={JSON.stringify(searchParams)} fallback={<Loading />}>
+              <ProductGrid searchParams={fullSearchParams} />
               <Pagination
-                total={products.length}
+                searchParams={fullSearchParams}
                 itemPerPage={itemPerPage}
                 curPage={curPage}
               />
             </Suspense>
-            {/* <div className="mt-8">
-              <Pagination />
-            </div> */}
           </div>
         </div>
       </div>

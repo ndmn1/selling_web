@@ -1,18 +1,39 @@
 "use client";
 
 import type React from "react";
-
-import { createContext, useContext, useEffect, useState } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+} from "react";
 import { getCookie, setCookie } from "@/lib/cookies";
-
-
+import { useSession } from "next-auth/react";
+import {
+  addToCart as addToCartDB,
+  removeFromCart as removeFromCartDB,
+  updateCartItemQuantity as updateCartItemQuantityDB,
+  changeItemSize as changeItemSizeDB,
+  syncCartToDatabase,
+  syncCartFromDatabase,
+  getCartCount as getCartCountDB,
+} from "@/actions/cart";
+import { usePathname, useRouter } from "next/navigation";
 // Define the type for our cart context
 type CartContextType = {
   cartCount: number;
-  addToCart: (productId: string, size: string) => void;
-  removeFromCart: (productId: string, size: string) => void;
-  changeItemQuantity: (productId: string, size: string, quantity: number) => void;
-  changeItemSize: (productId: string, oldSize: string, newSize: string, newSizeStock: number) => void;
+  addToCart: (sizeId: string, quantity: number) => void;
+  removeFromCart: (sizeId: string) => void;
+  changeItemQuantity: (sizeId: string, quantity: number) => void;
+  changeItemSize: (
+    oldSizeId: string,
+    newSizeId: string,
+    newSizeStock: number
+  ) => void;
+  getCookieCartItems: () => Record<string, number>;
+  removeFromCookieCart: (sizeId: string) => void;
+  isLoading: boolean;
 };
 
 // Create the context with default values
@@ -22,101 +43,323 @@ const CartContext = createContext<CartContextType>({
   removeFromCart: () => {},
   changeItemQuantity: () => {},
   changeItemSize: () => {},
+  getCookieCartItems: () => ({}),
+  removeFromCookieCart: () => {},
+  isLoading: true,
 });
 
 // Custom hook to use the cart context
 export const useCart = () => useContext(CartContext);
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
+  const router = useRouter();
   const [cartCount, setCartCount] = useState(0);
-
-  const calculateCartCount = (items: Record<string, Record<string, number>>) => {
+  const { data: session, status } = useSession();
+  const [previousUserId, setPreviousUserId] = useState<string | null>(null); // check if the user has logged in or out
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const pathname = usePathname();
+  const [isLoading, setIsLoading] = useState(true);
+  const calculateCartCount = (
+    // calculate the total number of items in the cart in cookies
+    items: Record<string, number>
+  ) => {
     let totalCount = 0;
-    Object.values(items).forEach((sizeObj) => {
-      Object.values(sizeObj as Record<string, number>).forEach((quantity) => {
+    if (items) {
+      Object.values(items).forEach((quantity) => {
         totalCount += quantity;
       });
-    });
+    }
     return totalCount;
-  }
-  // Initialize cart from cookies when component mounts (client-side only)
-  useEffect(() => {
+  };
+
+  // Get current cart items from cookies
+  const getCookieCartItems = (): Record<string, number> => {
     const cartItems = getCookie("cart-items");
     if (cartItems) {
       try {
-        const items = JSON.parse(cartItems);
-        const totalCount = calculateCartCount(items);
-        setCartCount(totalCount);
+        return JSON.parse(cartItems);
       } catch (e) {
         console.error("Failed to parse cart items from cookie", e);
+        return {};
       }
     }
-  }, []);
-
-  const addToCart = (productId: string, size: string) => {
-    const cartItems = getCookie("cart-items") || "{}";
-    try {
-      const items = JSON.parse(cartItems);
-      if (!items[productId]) {
-        items[productId] = {}
-      }
-      items[productId][size] = (items[productId]?.[size] || 0) + 1; // Increment the size count for the product
-      setCookie("cart-items", JSON.stringify(items));
-      setCartCount(cartCount + 1);
-    } catch (e) {
-      console.error("Failed to add item to cart", e);
-    }
+    return {};
   };
-  const changeItemQuantity = (productId: string, size: string, quantity: number) => {
-    const cartItems = getCookie("cart-items") || "{}";
-    try {
-      const items = JSON.parse(cartItems);
-      if (!items[productId]) {
-        items[productId] = {}
-      }
-      items[productId][size] = quantity;
+
+  // Update cart items in cookies
+  const setCookieCartItems = useCallback(
+    (
+      items: Record<string, number> // Record<sizeId, quantity>
+    ) => {
       setCookie("cart-items", JSON.stringify(items));
       setCartCount(calculateCartCount(items));
-    } catch (e) {
-      console.error("Failed to add item to cart", e);
+    },
+    []
+  );
+
+  // Initialize cart and handle user login/logout
+  useEffect(() => {
+    const handleCartInitialization = async () => {
+      if (status === "loading" || isLoggingIn || pathname === "/login") return;
+      setIsLoading(true);
+      try {
+        const currentUserId = session?.user?.id || null;
+        const cookieItems = getCookieCartItems();
+        console.log("currentUserId", currentUserId, "status", status);
+        console.log("previousUserId", previousUserId);
+
+        // User just logged in
+        if (currentUserId) {
+          console.log("User logged in");
+
+          // Check if cookie has data
+          if (Object.keys(cookieItems).length > 0) {
+            console.log(
+              "Cookie has data, clearing DB and syncing cookie to DB"
+            );
+            setCartCount(calculateCartCount(cookieItems));
+            // Clear database cart first, then sync cookie items
+            // const clearResult = await clearCartDB(currentUserId);
+            // console.log("Clear result:", clearResult);
+
+            const syncResult = await syncCartToDatabase(
+              currentUserId,
+              cookieItems
+            );
+            console.log("Sync result:", syncResult);
+
+            // Update cookies with the synced data from database
+            if (syncResult.success && syncResult.cookieCart) {
+              setCookieCartItems(syncResult.cookieCart);
+            }
+
+            if (pathname === "/cart") {
+              router.refresh();
+            }
+          } else {
+            console.log("Cookie is empty, using existing DB data");
+            const dbCartItems = await syncCartFromDatabase(currentUserId);
+            console.log("dbCartItems", dbCartItems);
+            setCookieCartItems(dbCartItems);
+
+            // Get updated count from database
+            const dbCount = await getCartCountDB(currentUserId);
+            console.log("dbCount", dbCount, "type:", typeof dbCount);
+
+            if (typeof dbCount === "number") {
+              setCartCount(dbCount);
+            } else {
+              console.error("Invalid cart count:", dbCount);
+              setCartCount(0);
+            }
+          }
+        }
+        // User is not logged in (refresh or initial load)
+        else if (!currentUserId && status === "unauthenticated") {
+          console.log("User not logged in, using cookie cart");
+          const totalCount = calculateCartCount(cookieItems);
+          setCartCount(totalCount);
+        }
+
+        setPreviousUserId(currentUserId);
+      } catch (error) {
+        console.error("Error in cart initialization:", error);
+        setCartCount(0);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    handleCartInitialization();
+  }, [
+    session?.user?.id,
+    status,
+    previousUserId,
+    setCookieCartItems,
+    isLoggingIn,
+    setIsLoading,
+  ]);
+
+  useEffect(() => {
+    if (pathname === "/login" && status === "authenticated") {
+      setIsLoggingIn(true);
+    }
+    if (pathname !== "/login" && status === "authenticated") {
+      setIsLoggingIn(false);
+    }
+  }, [pathname, status]);
+
+  const addToCart = async (sizeId: string, quantity: number = 1) => {
+    const userId = session?.user?.id;
+
+    if (userId) {
+      // User is logged in - use database
+      try {
+        const result = await addToCartDB(userId, sizeId, quantity);
+
+        if (result && result.success) {
+          const newCount = await getCartCountDB(userId);
+
+          if (typeof newCount === "number") {
+            setCartCount(newCount);
+          } else {
+            console.error("Invalid cart count after add:", newCount);
+            setCartCount(0);
+          }
+        } else {
+          console.error("Failed to add item to cart:", result);
+        }
+      } catch (error) {
+        console.error("Error adding to cart:", error);
+      }
+    }
+    // Update cookie cart items
+    const cartItems = getCookieCartItems();
+    cartItems[sizeId] = (cartItems[sizeId] || 0) + quantity;
+    setCookieCartItems(cartItems);
+  };
+  const removeFromCookieCart = (sizeId: string) => {
+    const cartItems = getCookieCartItems();
+    if (cartItems && cartItems[sizeId]) {
+      delete cartItems[sizeId];
+      setCookieCartItems(cartItems);
     }
   };
-  const changeItemSize = (productId: string, oldSize: string, newSize: string, newSizeStock: number) => {
-    const cartItems = getCookie("cart-items") || "{}";
-    try {
-      const items = JSON.parse(cartItems);
-      if (items[productId] && items[productId][oldSize]!=null) {
-        const oldQuantity = items[productId][oldSize];
-        const newQuantity = items[productId][newSize] || 0;
-        items[productId][newSize] = Math.min(newQuantity + oldQuantity, newSizeStock); // Set the new size with the quantity
-        delete items[productId][oldSize]; // Remove the old size
-        setCookie("cart-items", JSON.stringify(items));
-        setCartCount(calculateCartCount(items));
-      }
-    } catch (e) {
-      console.error("Failed to change item size in cart", e);
-    }
-  }
-  const removeFromCart = (productId: string, size: string) => {
-    const cartItems = getCookie("cart-items") || "{}";
-    try {
-      const items = JSON.parse(cartItems);
-      if (items[productId] && items[productId][size]) {
-        delete items[productId][size]
-        // Remove the product entirely if no sizes remain
-        if (Object.keys(items[productId]).length === 0) {
-          delete items[productId]
+
+  const removeFromCart = async (sizeId: string) => {
+    const userId = session?.user?.id;
+
+    if (userId) {
+      // User is logged in - use database
+      try {
+        const result = await removeFromCartDB(userId, sizeId);
+        console.log("Remove from cart result:", result);
+
+        if (result && result.success) {
+          const newCount = await getCartCountDB(userId);
+          console.log(
+            "New cart count after remove:",
+            newCount,
+            "type:",
+            typeof newCount
+          );
+
+          if (typeof newCount === "number") {
+            setCartCount(newCount);
+          } else {
+            console.error("Invalid cart count after remove:", newCount);
+            setCartCount(0);
+          }
+        } else {
+          console.error("Failed to remove item from cart:", result);
         }
-        setCookie("cart-items", JSON.stringify(items));
-        setCartCount(calculateCartCount(items));
+      } catch (error) {
+        console.error("Error removing from cart:", error);
       }
-    } catch (e) {
-      console.error("Failed to remove item from cart", e);
+    }
+    // Update cookie cart items
+    removeFromCookieCart(sizeId);
+  };
+
+  const changeItemQuantity = async (sizeId: string, quantity: number) => {
+    const userId = session?.user?.id;
+
+    if (userId) {
+      // User is logged in - use database
+      try {
+        const result = await updateCartItemQuantityDB(userId, sizeId, quantity);
+
+        if (result && result.success) {
+          const newCount = await getCartCountDB(userId);
+
+          if (typeof newCount === "number") {
+            setCartCount(newCount);
+          } else {
+            console.error(
+              "Invalid cart count after quantity change:",
+              newCount
+            );
+            setCartCount(0);
+          }
+        } else {
+          console.error("Failed to update item quantity:", result);
+        }
+      } catch (error) {
+        console.error("Error updating item quantity:", error);
+      }
+    }
+    // Update cookie cart items
+    const cartItems = getCookieCartItems();
+    if (quantity <= 0) {
+      // Remove item if quantity is 0 or less
+      if (cartItems[sizeId]) {
+        delete cartItems[sizeId];
+      }
+    } else {
+      cartItems[sizeId] = quantity;
+    }
+    setCookieCartItems(cartItems);
+  };
+
+  const changeItemSize = async (
+    oldSizeId: string,
+    newSizeId: string,
+    newSizeStock: number
+  ) => {
+    const userId = session?.user?.id;
+
+    if (userId) {
+      // User is logged in - use database
+      try {
+        const result = await changeItemSizeDB(userId, oldSizeId, newSizeId);
+        console.log("Change size result:", result);
+
+        if (result && result.success) {
+          const newCount = await getCartCountDB(userId);
+          console.log(
+            "New cart count after size change:",
+            newCount,
+            "type:",
+            typeof newCount
+          );
+
+          if (typeof newCount === "number") {
+            setCartCount(newCount);
+          } else {
+            console.error("Invalid cart count after size change:", newCount);
+            setCartCount(0);
+          }
+        } else {
+          console.error("Failed to change item size:", result);
+        }
+      } catch (error) {
+        console.error("Error changing item size:", error);
+      }
+    }
+    // Update cookie cart items
+    const cartItems = getCookieCartItems();
+    if (cartItems[oldSizeId] != null) {
+      const oldQuantity = cartItems[oldSizeId];
+      const newQuantity = cartItems[newSizeId] || 0;
+      cartItems[newSizeId] = Math.min(newQuantity + oldQuantity, newSizeStock);
+      delete cartItems[oldSizeId];
+      setCookieCartItems(cartItems);
     }
   };
 
   return (
-    <CartContext.Provider value={{ cartCount, addToCart, removeFromCart, changeItemQuantity, changeItemSize }}>
+    <CartContext.Provider
+      value={{
+        cartCount,
+        addToCart,
+        removeFromCart,
+        changeItemQuantity,
+        changeItemSize,
+        getCookieCartItems,
+        removeFromCookieCart,
+        isLoading,
+      }}
+    >
       {children}
     </CartContext.Provider>
   );

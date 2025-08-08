@@ -1,5 +1,5 @@
-import LoginForm from "@/components/LoginForm"
-import { Suspense } from "react"
+import LoginForm from "@/app/(auth)/login/_components/LoginForm";
+import { Suspense } from "react";
 
 export default function LoginPage() {
   return (
@@ -7,13 +7,14 @@ export default function LoginPage() {
       <div className="overflow-hidden  bg-slate-100 shadow-md rounded-lg border-2 px-6 py-8 ">
         <div className="p-6 pb-0">
           <h1 className="text-2xl font-bold">Login</h1>
-          <p className="text-gray-600 mt-2">Enter your credentials to access your account</p>
+          <p className="text-gray-600 mt-2">
+            Enter your credentials to access your account
+          </p>
         </div>
         <Suspense fallback={<div>Loading...</div>}>
           <LoginForm />
         </Suspense>
       </div>
     </div>
-  )
+  );
 }
-

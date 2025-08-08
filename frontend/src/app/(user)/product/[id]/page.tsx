@@ -1,6 +1,7 @@
-import ProductInfo from "@/components/ProductInfo";
-import RelatedProducts from "@/components/RelatedProducts";
-import { Suspense } from "react";
+import ProductInfo from "@/app/(user)/product/[id]/_components/ProductInfo";
+import RelatedProducts from "@/app/(user)/product/[id]/_components/RelatedProducts";
+import { getProductById, getProducts } from "@/data/product";
+import { notFound } from "next/navigation";
 
 export default async function ProductPage({
   params,
@@ -11,52 +12,28 @@ export default async function ProductPage({
 
   return (
     <div className="bg-white py-10 mx-auto container">
-      <Suspense fallback={<div>Loading...</div>}>
-        <ProductInfo
-          data={
-            new Promise((resolve) => {
-              setTimeout(
-                () =>
-                  resolve({
-                    id: id,
-                    name: "Nike Vomero 18",
-                    brand: "Nike",
-                    mainImage: "/images/vomero-main.png",
-                    images: [
-                      "/images/vomero-main.png",
-                      "/images/vomero-1.png",
-                      "/images/vomero-2.png",
-                    ],
-                    price: 4259000,
-                    salePrice: 4259000,
-                    discount: 0,
-                    description:
-                      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam fringilla augue nec est tristique auctor. Donec non est at libero.",
-                    sizes: [
-                      {
-                        size: "S",
-                        stock: 5,
-                      },
-                      {
-                        size: "M",
-                        stock: 10,
-                      },
-                      {
-                        size: "L",
-                        stock: 0,
-                      },
-                    ],
-                  }),
-                1000
-              );
-            })
-          }
-        />
-      </Suspense>
+      <ProductInfoWrapper productId={id} />
 
-      <Suspense fallback={<div>LoadingRelate...</div>}>
-        <RelatedProducts />
-      </Suspense>
+      <RelatedProductsWrapper />
     </div>
   );
+}
+
+// Server component wrapper for ProductInfo
+async function ProductInfoWrapper({ productId }: { productId: string }) {
+  const product = await getProductById(productId);
+
+  if (!product) {
+    notFound();
+  }
+
+  return <ProductInfo product={product} />;
+}
+
+// Server component wrapper for RelatedProducts
+async function RelatedProductsWrapper() {
+  const searchParams = { page: "1", limit: "5" };
+  const { products } = await getProducts(searchParams);
+
+  return <RelatedProducts products={products} />;
 }

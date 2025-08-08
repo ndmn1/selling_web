@@ -1,10 +1,11 @@
 "use server"
-import { LoginSchema } from "@/schemas";
+import { LoginSchema } from "@/schemas/auth";
 import { signIn } from "@/auth";
-import { getUserByEmail } from "@/data/user";
+import { getUserByEmail } from "@/actions/user";
 import { AuthError } from "next-auth";
 import { z } from "zod";
 import { DEFAULT_LOGIN_REDIRECT } from "@/route";
+import { UserRole } from "@prisma/client";
 
 
 export const login = async (
@@ -30,7 +31,8 @@ export const login = async (
       redirectTo: callbackUrl || DEFAULT_LOGIN_REDIRECT,
       redirect: false, 
     });
-    return { redirect: result };
+    console.log("Result:", result);
+    return { redirect: existingUser.role === UserRole.ADMIN ? "/admin/dashboard" : "/all" };
   } catch (error) {
     if (error instanceof AuthError) {
       switch (error.type) {

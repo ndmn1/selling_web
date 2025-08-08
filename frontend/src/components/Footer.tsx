@@ -4,7 +4,6 @@ import { FaTwitter } from "react-icons/fa6";
 import { FaInstagram } from "react-icons/fa";
 import { FaYoutube } from "react-icons/fa";
 import { CgMail } from "react-icons/cg";
-import { FaArrowUp } from "react-icons/fa";
 import { IoIosSend } from "react-icons/io";
 export default function Footer() {
   return (
@@ -45,16 +44,6 @@ export default function Footer() {
               <li>
                 <Link href="#" className="hover:text-white transition-colors">
                   Tất cả sản phẩm
-                </Link>
-              </li>
-              <li>
-                <Link href="#" className="hover:text-white transition-colors">
-                  Giày kí gửi
-                </Link>
-              </li>
-              <li>
-                <Link href="#" className="hover:text-white transition-colors">
-                  Giày order giá rẻ
                 </Link>
               </li>
             </ul>
@@ -134,14 +123,14 @@ export default function Footer() {
         </div>
       </div>
 
-      {/* Floating Buttons */}
+      {/* Floating Buttons
       <Link
         href="#"
         className="fixed bottom-6 right-6 bg-[#00b4ff] text-white p-3 rounded-full shadow-lg hover:bg-[#00a0e0] transition-colors z-10"
         aria-label="Back to top"
       >
         <FaArrowUp size="1.5em" />
-      </Link>
+      </Link> */}
     </footer>
   )
 }

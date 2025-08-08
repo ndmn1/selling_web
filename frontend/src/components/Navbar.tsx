@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
@@ -11,7 +10,8 @@ import DropDownNavLink from "./DropDownNavLink";
 import { useCart } from "@/context/CartCountProvider";
 import { MdOutlineAccountCircle } from "react-icons/md";
 import { useSession, signOut } from "next-auth/react";
-import { useCurrentUser } from "@/hooks/use-current-user";
+import { useRouter } from "next/navigation";
+import { Brand, getBrands } from "@/actions/brand";
 
 interface NavLinkProps {
   path: string;
@@ -19,6 +19,7 @@ interface NavLinkProps {
 }
 const Navbar = () => {
   const { data } = useSession();
+  // console.log(data);
   const handleLogout = async () => {
     await signOut({ redirect: true, callbackUrl: "/" });
   };
@@ -40,18 +41,25 @@ const Navbar = () => {
       name: "ABOUT US",
     },
   ];
-  const shoesBrands = ["Adidas", "Nike", "Puma", "Reebok", "Vans"];
+  const [shoesBrands, setShoesBrands] = useState<Brand[]>([]);
+  useEffect(() => {
+    const fetchBrands = async () => {
+      const brands = await getBrands();
+      setShoesBrands(brands.brands);
+    };
+    fetchBrands();
+  }, []);
   const [isOpen, setIsOpen] = useState(false);
   const [isOpenDrop, setIsOpenDrop] = useState(false);
   const [isSearch, setIsSearch] = useState(false);
   const [dropDownToggle, setDropDownToggle] = useState(false);
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
-
+  const router = useRouter();
   const navRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const lastScrollY = useRef(0);
   const { cartCount } = useCart();
-
+  // console.log("cartCount", cartCount);
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
@@ -92,8 +100,12 @@ const Navbar = () => {
     setDropDownToggle(false);
   };
 
+  const handleSearch = (searchTerm: string) => {
+    router.push(`/all?search=${searchTerm}`);
+  };
+
   return (
-    <header className="mb-16 lg:mb-24">
+    <header className="mb-16 lg:mb-20">
       <div
         className={`bg-[#1a1d23] fixed top-0 left-0 right-0 z-30 transition-transform duration-300 ${
           isHeaderVisible ? "translate-y-0" : "-translate-y-full"
@@ -101,7 +113,7 @@ const Navbar = () => {
       >
         <nav
           ref={navRef}
-          className="h-16 lg:h-24 flex-row flex w-full justify-between items-center text-white"
+          className="h-16 lg:h-20 flex-row flex w-full justify-between items-center text-white"
         >
           <div className="flex gap-2 mx-3 lg:hidden">
             <button
@@ -162,7 +174,10 @@ const Navbar = () => {
           </div>
           <div className="flex flex-row gap-4 items-center xl:mr-10 mx-3">
             <div className="hidden lg:block">
-              <Search />
+              <Search
+                onSearch={handleSearch}
+                placeholder="Tìm kiếm sản phẩm..."
+              />
             </div>
             <div className="relative group">
               {data?.user ? (
@@ -180,6 +195,14 @@ const Navbar = () => {
                     >
                       Profile
                     </Link>
+                    {data?.user?.role === "ADMIN" && (
+                      <Link
+                        href="/admin/dashboard"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        Admin Dashboard
+                      </Link>
+                    )}
                     <button
                       onClick={handleLogout}
                       className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
@@ -189,7 +212,7 @@ const Navbar = () => {
                   </div>
                 </>
               ) : (
-                <Link href="/login">
+                <Link href="/profile">
                   <MdOutlineAccountCircle fontSize="1.7em" color="white" />
                 </Link>
               )}
@@ -207,7 +230,10 @@ const Navbar = () => {
         {/* Mobile Search Bar (conditionally rendered) */}
         {isSearch && (
           <div className="pb-4 lg:hidden mx-3">
-            <Search />
+            <Search
+              onSearch={handleSearch}
+              placeholder="Tìm kiếm sản phẩm..."
+            />
           </div>
         )}
         {/* Mobile sidebar overlay */}
@@ -230,7 +256,7 @@ const Navbar = () => {
             ref={dropdownRef}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
-            className={`h-svh lg:h-auto fixed lg:left-1/2 lg:-translate-x-1/2 w-64 lg:w-2/3 top-16 lg:top-24 bg-white text-black shadow-lg z-50 transition-transform ${
+            className={`h-svh lg:h-auto fixed lg:left-1/2 lg:-translate-x-1/2 w-64 lg:w-2/3 top-16 lg:top-20 bg-white text-black shadow-lg z-50 transition-transform ${
               dropDownToggle ? "translate-x-0" : "-translate-x-64"
             }`}
           >
@@ -249,15 +275,15 @@ const Navbar = () => {
                       BỘ SƯU TẬP
                     </h3>
                   </div>
-                  <div className="space-y-4">
+                  <div className="space-y-4 lg:space-y-0 mt-3 lg:grid lg:grid-cols-2">
                     {shoesBrands.map((collection, idx) => (
                       <Link
-                        href="#"
+                        href={`/all?brand=${collection.name}`}
                         key={idx}
                         onClick={closeAllMenus}
-                        className="flex items-center gap-3 hover:bg-gray-100 p-2 rounded"
+                        className="flex items-center hover:bg-gray-100 p-2 rounded lg:p-3"
                       >
-                        <span>{collection}</span>
+                        <span>{collection.name}</span>
                       </Link>
                     ))}
                   </div>
