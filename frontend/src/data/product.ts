@@ -1,9 +1,11 @@
 import { db } from "@/lib/db"
 import type { CartProduct, DetailedProduct, Product } from "@/types/product"
-import type { SearchParams } from "@/app/(user)/all/page"
+
 // Server-side functions to get products
-export async function getProducts(searchParams: SearchParams): Promise<{ products: Product[], total: number }> {
-  const params = await searchParams;
+export async function getProducts(searchParams: {
+  [key: string]: string | string[] | undefined;
+}): Promise<{ products: Product[], total: number }> {
+  const params = searchParams;
   
   // Extract search parameters
   const page = Number(params.page) || 1;

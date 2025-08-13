@@ -1,9 +1,10 @@
 import { getProducts } from "@/data/product";
 import PaginationClient from "./PaginationClient";
-import type { SearchParams } from "@/app/(user)/all/page";
 
 interface PaginationProps {
-  searchParams: SearchParams;
+  searchParams: {
+    [key: string]: string | string[] | undefined;
+  };
   itemPerPage: number;
   curPage: number;
   pageParamName?: string;

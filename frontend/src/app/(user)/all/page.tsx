@@ -4,9 +4,9 @@ import Pagination from "@/components/Pagination";
 import { Suspense } from "react";
 import Loading from "./loading";
 
-export type SearchParams = {
+export type SearchParams = Promise<{
   [key: string]: string | string[] | undefined;
-};
+}>;
 export default async function ProductsPage(props: {
   searchParams: SearchParams;
 }) {
