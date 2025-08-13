@@ -1,9 +1,10 @@
 import ProductItem from "./ProductItem";
 import { getProducts } from "@/data/product";
-import type { SearchParams } from "@/app/(user)/all/page";
 
 interface ProductGridProps {
-  searchParams: SearchParams;
+  searchParams: {
+    [key: string]: string | string[] | undefined;
+  };
 }
 
 export default async function ProductGrid({ searchParams }: ProductGridProps) {

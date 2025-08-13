@@ -8,9 +8,9 @@ import {
 import type { UserOrderFormData } from "@/types/order";
 
 interface OrderPageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export default async function OrderPage({ params }: OrderPageProps) {
@@ -19,8 +19,8 @@ export default async function OrderPage({ params }: OrderPageProps) {
   if (!session?.user?.id) {
     redirect("/login");
   }
-
-  const order = await getUserOrderById(params.id);
+  const searchParams = await params;
+  const order = await getUserOrderById(searchParams.id);
 
   if (!order) {
     return (
@@ -37,7 +37,7 @@ export default async function OrderPage({ params }: OrderPageProps) {
 
   async function onSubmit(data: UserOrderFormData) {
     "use server";
-    await updateUserOrder(params.id, data);
+    await updateUserOrder(searchParams.id, data);
   }
 
   return (

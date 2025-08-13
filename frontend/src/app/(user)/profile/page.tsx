@@ -5,12 +5,12 @@ import TabContentServer from "./_components/TabContentServer";
 import LoadingCircle from "@/components/LoadingCircle";
 import ProfileSidebar from "./_components/ProfileSidebar";
 
-export type ProfileSearchParams = Promise<{
+export type SearchParams = Promise<{
   [key: string]: string | string[] | undefined;
 }>;
 
 export default async function ProfilePage(props: {
-  searchParams: ProfileSearchParams;
+  searchParams: SearchParams;
 }) {
   const searchParams = await props.searchParams;
   const tab = (searchParams.tab as string) || "info";
